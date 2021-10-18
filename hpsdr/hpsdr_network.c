@@ -216,7 +216,7 @@ int hpsdr_network_process(void) {
     }
 
     // if nothing has arrived via udp for some time, try to open tcp connection.
-    // "for some time" means 10 subsequent un-successful UDP rcvmmsg() calls
+    // "for some time" means 10 subsequent un-successful udp rcvmmsg() calls
     if (sock_TCP_Client < 0 && udp_retries > 10) {
         if ((sock_TCP_Client = accept(sock_TCP_Server, NULL, NULL)) > -1) {
             hpsdr_dbg_printf(1, "sock_TCP_Client: %d connected to sock_TCP_Server: %d\n", sock_TCP_Client, sock_TCP_Server);
@@ -257,7 +257,7 @@ int hpsdr_network_process(void) {
             }
             break;
 
-        // respond to an incoming Metis detection request
+        // respond to an incoming metis detection request
         case 0x0002feef:
             hpsdr_dbg_printf(1, "Respond to an incoming Metis detection request / code: 0x%08x\n", code);
 

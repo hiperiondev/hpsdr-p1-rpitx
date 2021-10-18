@@ -80,7 +80,7 @@ void* ep6_handler(void *arg) {
 
         size = settings.receivers * 6 + 2;
         n = 504 / size;  // number of samples per 512-byte-block
-        // Time (in nanosecs) to "collect" the samples sent in one sendmsg
+        // time (in nanosecs) to "collect" the samples sent in one sendmsg
         if ((48 << settings.rate) == 0) {
             wait = (2 * n * 1000000L);
         } else {
@@ -98,8 +98,8 @@ void* ep6_handler(void *arg) {
 
             switch (header_offset) {
             case 0:
-                // do not set PTT and CW in C0
-                // do not set ADC overflow in C1
+                // do not set ptt and cw in c0
+                // do not set adc overflow in c1
                 if (DEVICE_EMULATION == DEVICE_HERMES_LITE2) {
                     *(pointer + 5) = (0 >> 8) & 0x7F;
                     *(pointer + 6) = 0 & 0xFF;
@@ -108,28 +108,28 @@ void* ep6_handler(void *arg) {
                 break;
             case 8:
                 if (DEVICE_EMULATION == DEVICE_HERMES_LITE2) {
-                    // HL2: temperature
+                    // hl2: temperature
                     *(pointer + 4) = 0;
                     *(pointer + 5) = 0 & 0x7F;  // pseudo random number
                 } else {
-                    // AIN5: Exciter power
+                    // ain5: exciter power
                     *(pointer + 4) = 0;  // about 500 mW
                     *(pointer + 5) = settings.txdrive;
                 }
-                // AIN1: Forward Power
+                // ain1: forward power
                 j = (int) ((4095.0 / c1) * sqrt(100.0 * txlevel * c2));
                 *(pointer + 6) = (j >> 8) & 0xFF;
                 *(pointer + 7) = (j) & 0xFF;
                 header_offset = 16;
                 break;
             case 16:
-                // AIN2: Reverse power
-                // AIN3:
+                // ain2: reverse power
+                // ain3:
                 header_offset = 24;
                 break;
             case 24:
-                // AIN4:
-                // AIN5: supply voltage
+                // ain4:
+                // ain5: supply voltage
                 *(pointer + 6) = 0;
                 *(pointer + 7) = 63;
                 header_offset = 32;

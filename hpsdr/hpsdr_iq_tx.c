@@ -56,10 +56,11 @@ void iqsender_deinit(void) {
 }
 
 void iqsender_clearBuffer(void) {
-    // erase dma buffer
     float _Complex blankBuffer[IQBURST * 4];
     memset(blankBuffer, 0, IQBURST * 4 * sizeof(float _Complex));
-    iqdmasync_SetIQSamples(&iqsender, blankBuffer, (IQBURST * 4), 0);
+    memset(tx_iq_buffer, TXLEN, sizeof(float _Complex));
+    if (iqsender != NULL)
+        iqdmasync_SetIQSamples(&iqsender, blankBuffer, (IQBURST * 4), 0);
     hpsdr_dbg_printf(0, "-- Clear DMA buffer --\n");
 }
 
@@ -96,8 +97,9 @@ void* iqsender_tx(void *data) {
     memset(CIQBuffer, IQBURST,  sizeof(float _Complex));
 
     while (1) {
-        while (!tx_init)
+        while (!tx_init) {
             usleep(500);
+        }
 
         CIQBuffer[CplxSampleNumber++] = tx_iq_buffer[ptr];
         tx_iq_buffer[ptr++] = 0;

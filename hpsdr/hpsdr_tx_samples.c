@@ -53,7 +53,6 @@ void tx_samples_rcv(uint8_t *buffer) {
     // I1 contains bits 8-15 and I0 bits 0-7 of a signed 16-bit integer. We convert this
     // here to double.
     double disample, dqsample;
-    //double sum;
     bp = buffer + 16;  // skip 8 header and 8 SYNC/C&C bytes
 
     for (j = 0; j < 126; j++) {

@@ -57,7 +57,7 @@ int enable_thread;
 int active_thread;
 double c1, c2;
 pthread_t iqsender_tx_id;
-int IQBURST = 4000;
+int IQBURST = 100;
 
 static void terminate(int num) {
     fprintf(stderr, "Caught signal - Terminating %x\n", num);
@@ -76,12 +76,12 @@ int main(int argc, char *argv[]) {
         sigaction(i, &sa, NULL);
     }
 
-    // Examples for METIS:   ATLAS bus with Mercury/Penelope boards
-    // Examples for HERMES:  ANAN10, ANAN100
-    // Examples for ANGELIA: ANAN100D
-    // Examples for ORION:   ANAN200D
-    // Examples for ORION2:  ANAN7000, ANAN8000
-    // Examples for C25:     RedPitaya based boards with fixed ADC connections
+    // examples for METIS:   ATLAS bus with Mercury/Penelope boards
+    // examples for HERMES:  ANAN10, ANAN100
+    // examples for ANGELIA: ANAN100D
+    // examples for ORION:   ANAN200D
+    // examples for ORION2:  ANAN7000, ANAN8000
+    // examples for C25:     RedPitaya based boards with fixed ADC connections
     DEVICE_EMULATION = DEVICE_HERMES_LITE;
 
     for (i = 1; i < argc; i++) {
