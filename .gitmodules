@@ -1,0 +1,3 @@
+[submodule "librpitx-C"]
+	path = librpitx-C
+	url = https://github.com/hiperiondev/librpitx-C.git
