@@ -189,6 +189,9 @@ int main(int argc, char *argv[]) {
             break;
     }
 
+    if (pthread_mutex_init(&lock, NULL) != 0)
+        hpsdr_dbg_printf(0, "mutex init failed\n");
+
     if (pthread_create(&iqsender_tx_id, NULL, iqsender_tx, NULL) < 0) {
         hpsdr_dbg_printf(1, "ERROR: create iqsender_tx thread");
         return EXIT_FAILURE;

@@ -40,29 +40,28 @@
 
 bool tx_init = false;
 static long last_freq = 0;
-pthread_mutex_t tx_lock;
+pthread_mutex_t lock;
 
 void iqsender_init(uint64_t TuneFrequency, int fifosize) {
     float ppmpll = 0.0;
 
-    if (pthread_mutex_init(&tx_lock, NULL) != 0) {
-        hpsdr_dbg_printf(0, "mutex init has failed\n");
-        return;
-    }
-
-    pthread_mutex_lock(&tx_lock);
+    pthread_mutex_lock(&lock);
     iqdmasync_init(&iqsender, TuneFrequency, 48000, 14, fifosize, MODE_IQ);
     iqdmasync_Setppm(&iqsender, ppmpll);
-    pthread_mutex_unlock(&tx_lock);
+    pthread_mutex_unlock(&lock);
     tx_init = true;
 
     hpsdr_dbg_printf(0, "Start rpitx iq send\n");
 }
 
 void iqsender_deinit(void) {
-    if (iqsender != NULL)
+    if (iqsender != NULL) {
+        tx_init = false;
+        pthread_mutex_lock(&lock);
         iqdmasync_deinit(&iqsender);
-    tx_init = false;
+        pthread_mutex_unlock(&lock);
+    }
+
     hpsdr_dbg_printf(0, "Stop rpitx iq send\n");
 }
 
@@ -71,9 +70,9 @@ void iqsender_clearBuffer(void) {
     memset(blankBuffer, 0, IQBURST * 4 * sizeof(float _Complex));
     memset(tx_iq_buffer, TXLEN, sizeof(float _Complex));
     if (iqsender != NULL) {
-        pthread_mutex_lock(&tx_lock);
+        pthread_mutex_lock(&lock);
         iqdmasync_SetIQSamples(&iqsender, blankBuffer, (IQBURST * 4), 0);
-        pthread_mutex_unlock(&tx_lock);
+        pthread_mutex_unlock(&lock);
     }
 
     hpsdr_dbg_printf(0, "-- Clear DMA buffer --\n");
@@ -97,10 +96,10 @@ void iqsender_set(void) {
             hpsdr_dbg_printf(0, "Freq OUT OF RANGE\n");
             return;
         }
-        pthread_mutex_lock(&tx_lock);
+        pthread_mutex_lock(&lock);
         iqsender_deinit();
         iqsender_init(settings.tx_freq, IQBURST * 4);
-        pthread_mutex_unlock(&tx_lock);
+        pthread_mutex_unlock(&lock);
         last_freq = settings.tx_freq;
         hpsdr_dbg_printf(0, "TX frequency changed: %d\n", settings.tx_freq);
     }
@@ -114,9 +113,8 @@ void* iqsender_tx(void *data) {
     memset(CIQBuffer, IQBURST, sizeof(float _Complex));
 
     while (1) {
-        while (!tx_init) {
+        while (iqsender == NULL)
             usleep(500);
-        }
 
         CIQBuffer[CplxSampleNumber++] = tx_iq_buffer[ptr];
         tx_iq_buffer[ptr++] = 0;
@@ -125,14 +123,14 @@ void* iqsender_tx(void *data) {
 
         if (CplxSampleNumber == IQBURST) {
             if (iqsender != NULL) {
-                pthread_mutex_lock(&tx_lock);
+                pthread_mutex_lock(&lock);
                 iqdmasync_SetIQSamples(&iqsender, CIQBuffer, CplxSampleNumber, Harmonic);
-                pthread_mutex_unlock(&tx_lock);
+                pthread_mutex_unlock(&lock);
             }
             CplxSampleNumber = 0;
         }
 
     }
-    pthread_mutex_destroy(&tx_lock);
+
     return NULL;
 }

@@ -55,6 +55,7 @@ extern int DEVICE_EMULATION;
 extern float _Complex tx_iq_buffer[TXLEN];
 extern int tx_iq_ptr;
 extern bool tx_init;
+extern pthread_mutex_t lock;
 
 // Constants for conversion of TX power
 extern double c1, c2;
