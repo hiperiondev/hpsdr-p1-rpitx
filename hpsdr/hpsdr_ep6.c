@@ -169,8 +169,6 @@ void* ep6_handler(void *arg) {
     }
     active_thread = 0;
 
-    iqsender_clearBuffer();
-
     hpsdr_dbg_printf(1, "Stop handler_ep6\n");
     return NULL;
 }

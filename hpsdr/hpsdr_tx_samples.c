@@ -45,7 +45,7 @@ float _Complex tx_iq_buffer[TXLEN];
 int tx_iq_ptr = 0;
 
 void tx_samples_rcv(uint8_t *buffer) {
-    iqsender_set();
+    //iqsender_set();
 
     // Put TX IQ samples into the ring buffer
     // In the old protocol, samples come in groups of 8 bytes L1 L0 R1 R0 I1 I0 Q1 Q0
