@@ -6,5 +6,7 @@ Transmitter with Raspberry PI over OpenHPSDR
 
 ### This program is still ALPHA
 #### Problems:
-- Not work change frequency "on the fly".
-- Change frequency with program launched some times crash Raspberry (maybe a librpitx problem)
+- Some "glitches" at start of transmission
+- Sometimes "cracked" sound (may be lost packets)
+- ~~Not work change frequency "on the fly"~~. **NOW WORKING**
+- ~~Change frequency with program launched some times crash Raspberry (maybe a librpitx problem)~~ **NOW WORKING**
