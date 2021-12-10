@@ -382,6 +382,7 @@ void ep2_txdrive(uint8_t *frame, int *reg, int val, char *str) {
 
 void ep2_txfreq(uint8_t *frame, long *reg, int val, char *str) {
     *reg = val;
+    iqsender_set();
     hpsdr_dbg_printf(1, "%24s= %08lx (%10ld)\n", str, (long) val, (long) *reg);
 }
 

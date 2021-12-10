@@ -48,13 +48,16 @@ extern int DEVICE_EMULATION;
 // and two METIS packets per TCP/UDP packet,
 // and two/four/eight-fold up-sampling if the TX sample
 // rate is 96000/192000/384000
-//
-// In the new protocol, TX samples come in bunches of
-// 240 samples.
-#define TXLEN 64512
-extern float _Complex tx_iq_buffer[TXLEN];
+#define TXLEN 10 // tx buffer len = TXLEN * IQBURST
 extern int tx_iq_ptr;
 extern bool tx_init;
+
+typedef struct tx_args_st {
+    float _Complex *iq_buffer;
+    iqdmasync_t *iqsender;
+} tx_args_t;
+
+tx_args_t tx_arg;
 
 // Constants for conversion of TX power
 extern double c1, c2;

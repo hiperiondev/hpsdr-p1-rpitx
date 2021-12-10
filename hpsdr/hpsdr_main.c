@@ -56,11 +56,46 @@ int DEVICE_EMULATION;
 int enable_thread;
 int active_thread;
 double c1, c2;
-pthread_t iqsender_tx_id;
 int IQBURST = 100;
 
+char exit_signal[33][17] = {
+        "NOSIGNAL",
+        "SIGHUP",
+        "SIGINT",
+        "SIGQUIT",
+        "SIGILL",
+        "SIGTRAP",
+        "SIGABRT",
+        "SIGIOT",
+        "SIGBUS",
+        "SIGFPE",
+        "SIGKILL",
+        "SIGUSR1",
+        "SIGSEGV",
+        "SIGUSR2",
+        "SIGPIPE",
+        "SIGALRM",
+        "SIGTERM",
+        "SIGSTKFLT",
+        "SIGCHLD",
+        "SIGCONT",
+        "SIGSTOP",
+        "SIGTSTP",
+        "SIGTTIN",
+        "SIGTTOU",
+        "SIGURG",
+        "SIGXCPU",
+        "SIGXFSZ",
+        "SIGVTALRM",
+        "SIGPROF",
+        "SIGWINCH",
+        "SIGIO",
+        "SIGPWR",
+        "SIGSYS/SIGUNUSED",
+};
+
 static void terminate(int num) {
-    fprintf(stderr, "Caught signal - Terminating %x\n", num);
+    fprintf(stderr, "Caught signal - Terminating 0x%x/%d(%s)\n", num, num, exit_signal[num]);
     iqsender_deinit();
     exit(1);
 }
@@ -189,16 +224,12 @@ int main(int argc, char *argv[]) {
             break;
     }
 
-    memset(tx_iq_buffer, TXLEN, sizeof(float _Complex));
-    if (pthread_create(&iqsender_tx_id, NULL, iqsender_tx, NULL) < 0) {
-        hpsdr_dbg_printf(1, "ERROR: create iqsender_tx thread");
-        return EXIT_FAILURE;
-    }
-    pthread_detach(iqsender_tx_id);
+    tx_arg.iq_buffer = (float _Complex*) malloc(IQBURST * TXLEN * sizeof(float _Complex));
 
     hpsdr_network_init();
     while (1) {
-        hpsdr_network_process();
+        if (hpsdr_network_process() != EXIT_SUCCESS)
+            break;
     }
     hpsdr_network_deinit();
 

@@ -32,8 +32,7 @@
 
 void iqsender_deinit(void);
 void iqsender_init(uint64_t TuneFrequency, int iqburst);
-void iqsender_clearBuffer(void);
 void iqsender_set(void);
-void *iqsender_tx(void *data);
+void* iqsender_tx(void *data);
 
 #endif /* HPSDR_IQ_TX_H_ */

@@ -30,23 +30,25 @@
 #include <time.h>
 #include <string.h>
 #include <math.h>
+#include <complex.h>
 
 #include "hpsdr_main.h"
 #include "hpsdr_definitions.h"
 #include "hpsdr_functions.h"
 #include "hpsdr_debug.h"
-#include "hpsdr_iq_tx.h"
 #include "librpitx.h"
 
 uint8_t *bp;
 int j;
 int16_t samplei, sampleq;
-float _Complex tx_iq_buffer[TXLEN];
 int tx_iq_ptr = 0;
 
-void tx_samples_rcv(uint8_t *buffer) {
-    //iqsender_set();
+int CplxSampleNumber = 0;
+float _Complex *CIQBuffer;
+int ciqbuffer_ptr = 0;
+int Harmonic = 1;
 
+void samples_rcv(uint8_t *buffer) {
     // Put TX IQ samples into the ring buffer
     // In the old protocol, samples come in groups of 8 bytes L1 L0 R1 R0 I1 I0 Q1 Q0
     // Here, L1/L0 and R1/R0 are audio samples, and I1/I0 and Q1/Q0 are the TX iq samples
@@ -63,12 +65,13 @@ void tx_samples_rcv(uint8_t *buffer) {
         sampleq = (int) ((signed char) *bp++) << 8;
         sampleq |= (int) ((signed char) *bp++ & 0xFF);
         dqsample = sampleq * 0.000030518509476;
+        tx_arg.iq_buffer[tx_iq_ptr++] = disample + dqsample * I;
 
-        tx_iq_buffer[tx_iq_ptr++] = disample + dqsample * I;
-        if (tx_iq_ptr > TXLEN)
+        if (tx_iq_ptr > TXLEN * IQBURST)
             tx_iq_ptr = 0;
 
         if (j == 62)
             bp += 8;  // skip 8 SYNC/C&C bytes of second block
     }
+
 }

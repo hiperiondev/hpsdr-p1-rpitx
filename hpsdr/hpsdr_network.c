@@ -63,8 +63,7 @@ int udp_retries = 0;
 uint32_t code;
 uint32_t *code0 = (uint32_t*) buffer;  // fast access to code of first buffer
 
-uint8_t reply[11] = {
-        0xef, //
+uint8_t reply[11] = { 0xef, //
         0xfe, //
         2,    //
         0xaa, //
@@ -77,8 +76,7 @@ uint8_t reply[11] = {
         1     //
         };
 
-uint8_t id[4] = {
-        0xef, //
+uint8_t id[4] = { 0xef, //
         0xfe, //
         1,    //
         6     //
@@ -225,7 +223,8 @@ int hpsdr_network_process(void) {
         udp_retries = 0;
     }
     if (bytes_read <= 0)
-        goto end;
+        return EXIT_SUCCESS;
+
     memcpy(&code, buffer, 4);
 
     hpsdr_dbg_printf(2, "-- code received: %04x (%d)\n", code, code);
@@ -253,11 +252,11 @@ int hpsdr_network_process(void) {
             ep2_handler(buffer + 523);
 
             if (active_thread) {
-                tx_samples_rcv(buffer);
+                samples_rcv(buffer);
             }
             break;
 
-        // respond to an incoming metis detection request
+            // respond to an incoming metis detection request
         case 0x0002feef:
             hpsdr_dbg_printf(1, "Respond to an incoming Metis detection request / code: 0x%08x\n", code);
 
@@ -298,7 +297,7 @@ int hpsdr_network_process(void) {
 
             break;
 
-        // stop the sdr to pc transmission via handler_ep6
+            // stop the sdr to pc transmission via handler_ep6
         case 0x0004feef:
             hpsdr_dbg_printf(1, "STOP the transmission via handler_ep6 / code: 0x%08x\n", code);
 
@@ -318,7 +317,7 @@ int hpsdr_network_process(void) {
             }
             break;
 
-        // start the pc-to-sdr handler thread
+            // start the pc-to-sdr handler thread
         case 0x0104feef:
         case 0x0204feef:
         case 0x0304feef:
@@ -348,13 +347,13 @@ int hpsdr_network_process(void) {
 
             break;
 
-        // non standard cases
+            // non standard cases
         default:
             // "program" packet
             if (bytes_read == 264 && buffer[0] == 0xEF && buffer[1] == 0xFE && buffer[2] == 0x03 && buffer[3] == 0x01) {
                 static long cnt = 0;
                 unsigned long blks = (buffer[4] << 24) + (buffer[5] << 16) + (buffer[6] << 8) + buffer[7];
-                hpsdr_dbg_printf(1, "OldProtocol Program blks=%lu count=%ld\r", blks, ++cnt);
+                hpsdr_dbg_printf(1, "Program blks=%lu count=%ld\r", blks, ++cnt);
 
                 hpsdr_program(buffer);
 
@@ -366,7 +365,7 @@ int hpsdr_network_process(void) {
 
             // "erase" packet
             if (bytes_read == 64 && buffer[0] == 0xEF && buffer[1] == 0xFE && buffer[2] == 0x03 && buffer[3] == 0x02) {
-                hpsdr_dbg_printf(1, "OldProtocol Erase packet received:\n");
+                hpsdr_dbg_printf(1, "Erase packet received:\n");
 
                 hpsdr_erase_packet(buffer);
 
@@ -377,7 +376,7 @@ int hpsdr_network_process(void) {
 
             // "set ip" packet
             if (bytes_read == 63 && buffer[0] == 0xEF && buffer[1] == 0xFE && buffer[2] == 0x03) {
-                hpsdr_dbg_printf(1, "OldProtocol SetIP packet received:\n");
+                hpsdr_dbg_printf(1, "SetIP packet received:\n");
                 hpsdr_dbg_printf(1, "MAC address is %02x:%02x:%02x:%02x:%02x:%02x\n", buffer[3], buffer[4], buffer[5], buffer[6], buffer[7], buffer[8]);
                 hpsdr_dbg_printf(1, "IP  address is %03d:%03d:%03d:%03d\n", buffer[9], buffer[10], buffer[11], buffer[12]);
 
@@ -388,14 +387,15 @@ int hpsdr_network_process(void) {
             }
     }
 
-    end:
     return EXIT_SUCCESS;
 }
 
 void hpsdr_network_send(uint8_t *buffer, size_t len) {
+    int counter;
     if (sock_TCP_Client > -1) {
-        if (sendto(sock_TCP_Client, buffer, 1032, 0, (struct sockaddr*) &addr, sizeof(addr)) < 0) {
-            //hpsdr_dbg_printf(1, "TCP sendmsg error occurred at sequence number: %u !\n", counter);
+        counter = sendto(sock_TCP_Client, buffer, 1032, 0, (struct sockaddr*) &addr, sizeof(addr));
+        if (counter < 0) {
+            hpsdr_dbg_printf(1, "TCP sendmsg error occurred at sequence number: %u !\n", counter);
         }
     } else {
         sendto(sock_udp, buffer, 1032, 0, (struct sockaddr*) &addr, sizeof(addr));

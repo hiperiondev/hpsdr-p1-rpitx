@@ -38,87 +38,100 @@
 
 #include "librpitx.h"
 
-bool tx_init = false;
-static long last_freq = 0;
+        bool tx_init = false;
+        bool sender_init = false;
+unsigned int tx_block = 0;
+ static long last_freq = 0;
+        bool change_freq = false;
+   pthread_t iqsender_tx_id;
 
 void iqsender_init(uint64_t TuneFrequency, int fifosize) {
+    if (sender_init) {
+        hpsdr_dbg_printf(0, "iqsender already initialize\n");
+        return;
+    }
+
     float ppmpll = 0.0;
 
-    iqdmasync_init(&iqsender, TuneFrequency, 48000, 14, fifosize, MODE_IQ);
-    iqdmasync_Setppm(&iqsender, ppmpll);
+    iqdmasync_init(&(tx_arg.iqsender), TuneFrequency, 48000, 14, fifosize, MODE_IQ);
+    iqdmasync_set_ppm(&(tx_arg.iqsender), ppmpll);
 
     tx_init = true;
+
+    pthread_create(&iqsender_tx_id, NULL, &iqsender_tx, (void*) &tx_arg);
+    //pthread_detach(iqsender_tx_id);
 
     hpsdr_dbg_printf(0, "Start rpitx iq send\n");
 }
 
 void iqsender_deinit(void) {
-    if (iqsender != NULL) {
+    if (tx_arg.iqsender != NULL) {
+        hpsdr_dbg_printf(0, "iqsender_deinit\n");
         tx_init = false;
-        iqdmasync_deinit(&iqsender);
+        iqdmasync_deinit(&(tx_arg.iqsender));
+    } else {
+        hpsdr_dbg_printf(0, "ERROR: iqsender NULL\n");
     }
 
     hpsdr_dbg_printf(0, "Stop rpitx iq send\n");
 }
 
-void iqsender_clearBuffer(void) {
-    float _Complex blankBuffer[IQBURST * 4];
-    memset(blankBuffer, 0, IQBURST * 4 * sizeof(float _Complex));
-    memset(tx_iq_buffer, TXLEN, sizeof(float _Complex));
-    if (iqsender != NULL) {
-        iqdmasync_SetIQSamples(&iqsender, blankBuffer, (IQBURST * 4), 0);
-    }
-}
-
 void iqsender_set(void) {
     if (!tx_init) {
         if (settings.tx_freq < 1000000 || settings.tx_freq > 500000000) {
-            //hpsdr_dbg_printf(0, "Freq OUT OF RANGE\n");
+            hpsdr_dbg_printf(0, "Freq OUT OF RANGE (1000000 - 500000000) : %d\n", (int) settings.tx_freq);
             return;
         }
 
         hpsdr_dbg_printf(1, "Starting TX at Freq %ld\n", settings.tx_freq);
         iqsender_init(settings.tx_freq, IQBURST * 4);
         last_freq = settings.tx_freq;
+        hpsdr_dbg_printf(0, "FX at %ld\n", settings.tx_freq);
         return;
     }
 
     if (settings.tx_freq != last_freq) {
         if (settings.tx_freq < 1000000 || settings.tx_freq > 500000000) {
-            hpsdr_dbg_printf(0, "Freq OUT OF RANGE\n");
+            hpsdr_dbg_printf(0, "Freq OUT OF RANGE (1000000 - 500000000) : %d\n", (int) settings.tx_freq);
             return;
         }
 
+        hpsdr_dbg_printf(0, "Changing TX frequency\n");
         iqsender_deinit();
         iqsender_init(settings.tx_freq, IQBURST * 4);
+        change_freq = false;
 
+        hpsdr_dbg_printf(0, "TX frequency changed: %d->%d\n", last_freq, settings.tx_freq);
         last_freq = settings.tx_freq;
-        hpsdr_dbg_printf(0, "TX frequency changed: %d\n", settings.tx_freq);
     }
 }
 
 void* iqsender_tx(void *data) {
-    int CplxSampleNumber = 0;
-    int ptr = 0;
+    hpsdr_dbg_printf(0, "START SENDER THREAD\n");
     int Harmonic = 1;
-    float _Complex CIQBuffer[IQBURST];
-    memset(CIQBuffer, IQBURST, sizeof(float _Complex));
+    int buffer_offset = 0;
+    int n;
 
-    while (1) {
-        iqsender_set();
-
-        CIQBuffer[CplxSampleNumber++] = tx_iq_buffer[ptr];
-        tx_iq_buffer[ptr++] = 0;
-        if (ptr > TXLEN)
-            ptr = 0;
-
-        if (CplxSampleNumber == IQBURST) {
-            if (iqsender != NULL && tx_init) {
-                iqdmasync_SetIQSamples(&iqsender, CIQBuffer, CplxSampleNumber, Harmonic);
-            }
-            CplxSampleNumber = 0;
-        }
+    if (tx_arg.iq_buffer == NULL) {
+        hpsdr_dbg_printf(0, "ERROR: tx buffer not allocated\n");
+        return NULL;
     }
 
+    while (1) {
+        if (tx_arg.iqsender == NULL || !tx_init)
+            continue;
+
+        buffer_offset = tx_block * IQBURST;
+        iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, IQBURST, Harmonic);
+
+        for (n = 0; n < IQBURST - 1; n++)
+            (tx_arg.iq_buffer + buffer_offset)[n] = 0 + 0 * I;
+
+        ++tx_block;
+        if (tx_block > TXLEN - 1)
+            tx_block = 0;
+    }
+
+    hpsdr_dbg_printf(0, "STOP SENDER THREAD\n");
     return NULL;
 }

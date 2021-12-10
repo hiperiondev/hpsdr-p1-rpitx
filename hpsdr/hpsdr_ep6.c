@@ -73,6 +73,8 @@ void* ep6_handler(void *arg) {
     header_offset = 0;
     counter = 0;
 
+    iqsender_set();
+
     clock_gettime(CLOCK_MONOTONIC, &delay);
     while (1) {
         if (!enable_thread)

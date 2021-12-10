@@ -30,6 +30,6 @@
 
 #include <stdint.h>
 
-void tx_samples_rcv(uint8_t *buffer);
+void samples_rcv(uint8_t *buffer);
 
 #endif /* HPSDR_TX_SAMPLES_H_ */
