@@ -51,6 +51,8 @@ extern int DEVICE_EMULATION;
 #define TXLEN 10 // tx buffer len = TXLEN * IQBURST
 extern int tx_iq_ptr;
 extern bool tx_init;
+extern uint32_t last_seqnum;
+extern uint32_t seqnum;
 
 typedef struct tx_args_st {
     float _Complex *iq_buffer;
