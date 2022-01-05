@@ -42,7 +42,7 @@ uint8_t *bp;
 int j;
 int16_t samplei, sampleq;
 int tx_iq_ptr = 0;
-
+int burst_cnt = 0;
 int CplxSampleNumber = 0;
 float _Complex *CIQBuffer;
 int ciqbuffer_ptr = 0;
@@ -69,6 +69,9 @@ void samples_rcv(uint8_t *buffer) {
 
         if (tx_iq_ptr > TXLEN * IQBURST)
             tx_iq_ptr = 0;
+
+        if ((tx_iq_ptr % IQBURST) == 0)
+            ++burst_cnt;
 
         if (j == 62)
             bp += 8;  // skip 8 SYNC/C&C bytes of second block

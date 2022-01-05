@@ -43,12 +43,10 @@
         bool tx_sending = false;
 unsigned int tx_block = 0;
  static long last_freq = 0;
-        bool change_freq = false;
    pthread_t iqsender_tx_id;
 
 void iqsender_init(uint64_t TuneFrequency, int fifosize) {
     if (sender_init) {
-        hpsdr_dbg_printf(0, "iqsender already initialize\n");
         return;
     }
 
@@ -57,8 +55,6 @@ void iqsender_init(uint64_t TuneFrequency, int fifosize) {
     iqdmasync_init(&(tx_arg.iqsender), TuneFrequency, 48000, 14, fifosize, MODE_IQ);
     iqdmasync_set_ppm(&(tx_arg.iqsender), ppmpll);
 
-    pthread_create(&iqsender_tx_id, NULL, &iqsender_tx, (void*) &tx_arg);
-    pthread_detach(iqsender_tx_id);
     tx_init = true;
 
     hpsdr_dbg_printf(0, "Start rpitx iq send\n");
@@ -68,6 +64,7 @@ void iqsender_deinit(void) {
     if (tx_arg.iqsender != NULL) {
         hpsdr_dbg_printf(0, "iqsender_deinit\n");
         tx_init = false;
+        usleep(50000);
         iqdmasync_deinit(&(tx_arg.iqsender));
     } else {
         hpsdr_dbg_printf(0, "ERROR: iqsender NULL\n");
@@ -86,7 +83,7 @@ void iqsender_set(void) {
         hpsdr_dbg_printf(1, "Starting TX at Freq %ld\n", settings.tx_freq);
         iqsender_init(settings.tx_freq, IQBURST * 4);
         last_freq = settings.tx_freq;
-        hpsdr_dbg_printf(0, "FX at %ld\n", settings.tx_freq);
+        hpsdr_dbg_printf(0, "FTX at %ld\n", settings.tx_freq);
         return;
     }
 
@@ -97,17 +94,18 @@ void iqsender_set(void) {
         }
 
         hpsdr_dbg_printf(0, "Changing TX frequency\n");
-        tx_init = false;
-
-        usleep(500000);
         iqsender_deinit();
+        usleep(50000);
         iqsender_init(settings.tx_freq, IQBURST * 4);
-        change_freq = false;
-        tx_init = true;
 
         hpsdr_dbg_printf(0, "TX frequency changed: %d->%d\n", last_freq, settings.tx_freq);
         last_freq = settings.tx_freq;
     }
+}
+
+void iqsender_clear_buffer(void) {
+    for (int n = 0; n < TXLEN * IQBURST; n++)
+        tx_arg.iq_buffer[n] = 0 + 0 * I;
 }
 
 void* iqsender_tx(void *data) {
@@ -120,7 +118,9 @@ void* iqsender_tx(void *data) {
 
     pthread_getschedparam(pthread_self(), &policy, &param);
     param.sched_priority = sched_get_priority_max(policy);
-    pthread_setschedparam(pthread_self(), policy, &param);
+    n = pthread_setschedparam(pthread_self(), policy, &param);
+    if (n != 0)
+        hpsdr_dbg_printf(0, "WARNING: iqsender_tx can't get max priority (%d)\n", param.sched_priority);
 
     if (tx_arg.iq_buffer == NULL) {
         hpsdr_dbg_printf(0, "ERROR: tx buffer not allocated\n");
@@ -132,9 +132,10 @@ void* iqsender_tx(void *data) {
             continue;
 
         buffer_offset = tx_block * IQBURST;
+
         iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, IQBURST, Harmonic);
         for (n = 0; n < IQBURST - 1; n++)
-            (tx_arg.iq_buffer + buffer_offset)[n] = 0 + 0 * I;
+            (tx_arg.iq_buffer + buffer_offset)[n] = 0.0 + 0.0 * I;
 
         ++tx_block;
         if (tx_block > TXLEN - 1)

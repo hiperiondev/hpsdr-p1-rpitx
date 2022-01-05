@@ -225,6 +225,10 @@ int main(int argc, char *argv[]) {
     }
 
     tx_arg.iq_buffer = (float _Complex*) malloc(IQBURST * TXLEN * sizeof(float _Complex));
+    tx_arg.iqsender = NULL;
+
+    pthread_create(&iqsender_tx_id, NULL, &iqsender_tx, (void*) &tx_arg);
+    pthread_detach(iqsender_tx_id);
 
     hpsdr_network_init();
     while (1) {
