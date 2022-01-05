@@ -131,7 +131,7 @@ void* iqsender_tx(void *data) {
 
     while (1) {
         if (tx_arg.iqsender == NULL || !tx_init) {
-            usleep(1000);
+            usleep(100);
             continue;
         }
 
