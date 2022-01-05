@@ -31,7 +31,7 @@
 #include <stdint.h>
 
 void iqsender_deinit(void);
-void iqsender_init(uint64_t TuneFrequency, int iqburst);
+void iqsender_init(uint64_t TuneFrequency);
 void iqsender_set(void);
 void iqsender_clear_buffer(void);
 void* iqsender_tx(void *data);

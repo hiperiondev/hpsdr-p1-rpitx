@@ -45,14 +45,15 @@ unsigned int tx_block = 0;
  static long last_freq = 0;
    pthread_t iqsender_tx_id;
 
-void iqsender_init(uint64_t TuneFrequency, int fifosize) {
-    if (sender_init) {
+void iqsender_init(uint64_t TuneFrequency) {
+    if (sender_init || (TuneFrequency < 1000)) {
+        printf("avoid init!\n");
         return;
     }
 
     float ppmpll = 0.0;
 
-    iqdmasync_init(&(tx_arg.iqsender), TuneFrequency, 48000, 14, fifosize, MODE_IQ);
+    iqdmasync_init(&(tx_arg.iqsender), TuneFrequency, 48000, 14, IQBURST * 4, MODE_IQ);
     iqdmasync_set_ppm(&(tx_arg.iqsender), ppmpll);
 
     tx_init = true;
@@ -76,12 +77,12 @@ void iqsender_deinit(void) {
 void iqsender_set(void) {
     if (!tx_init) {
         if (settings.tx_freq < 1000000 || settings.tx_freq > 500000000) {
-            hpsdr_dbg_printf(0, "Freq OUT OF RANGE (1000000 - 500000000) : %d\n", (int) settings.tx_freq);
+            hpsdr_dbg_printf(0, "(init) Freq OUT OF RANGE (1000000 - 500000000) : %d\n", (int) settings.tx_freq);
             return;
         }
 
-        hpsdr_dbg_printf(1, "Starting TX at Freq %ld\n", settings.tx_freq);
-        iqsender_init(settings.tx_freq, IQBURST * 4);
+        hpsdr_dbg_printf(1, "Starting TX at Freq %ld (fifosize = %d)\n", settings.tx_freq, IQBURST * 4);
+        iqsender_init(settings.tx_freq);
         last_freq = settings.tx_freq;
         hpsdr_dbg_printf(0, "FTX at %ld\n", settings.tx_freq);
         return;
@@ -89,14 +90,15 @@ void iqsender_set(void) {
 
     if (settings.tx_freq != last_freq) {
         if (settings.tx_freq < 1000000 || settings.tx_freq > 500000000) {
-            hpsdr_dbg_printf(0, "Freq OUT OF RANGE (1000000 - 500000000) : %d\n", (int) settings.tx_freq);
+            hpsdr_dbg_printf(0, "(chg frq) Freq OUT OF RANGE (1000000 - 500000000) : %d\n", (int) settings.tx_freq);
             return;
         }
 
         hpsdr_dbg_printf(0, "Changing TX frequency\n");
+        iqsender_clear_buffer();
         iqsender_deinit();
-        usleep(50000);
-        iqsender_init(settings.tx_freq, IQBURST * 4);
+
+        iqsender_init(settings.tx_freq);
 
         hpsdr_dbg_printf(0, "TX frequency changed: %d->%d\n", last_freq, settings.tx_freq);
         last_freq = settings.tx_freq;
@@ -128,14 +130,16 @@ void* iqsender_tx(void *data) {
     }
 
     while (1) {
-        if (tx_arg.iqsender == NULL || !tx_init)
+        if (tx_arg.iqsender == NULL || !tx_init) {
+            usleep(1000);
             continue;
+        }
 
         buffer_offset = tx_block * IQBURST;
 
         iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, IQBURST, Harmonic);
         for (n = 0; n < IQBURST - 1; n++)
-            (tx_arg.iq_buffer + buffer_offset)[n] = 0.0 + 0.0 * I;
+            (tx_arg.iq_buffer + buffer_offset)[n] = 0 + 0 * I;
 
         ++tx_block;
         if (tx_block > TXLEN - 1)
