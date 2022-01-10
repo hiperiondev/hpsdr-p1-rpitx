@@ -63,7 +63,8 @@ int udp_retries = 0;
 uint32_t code;
 uint32_t *code0 = (uint32_t*) buffer;  // fast access to code of first buffer
 
-uint8_t reply[11] = { 0xef, //
+uint8_t reply[11] = {
+        0xef, //
         0xfe, //
         2,    //
         0xaa, //
@@ -76,7 +77,8 @@ uint8_t reply[11] = { 0xef, //
         1     //
         };
 
-uint8_t id[4] = { 0xef, //
+uint8_t id[4] = {
+        0xef, //
         0xfe, //
         1,    //
         6     //
@@ -340,7 +342,7 @@ int hpsdr_network_process(void) {
             active_thread = 1;
 
             if (pthread_create(&op_handler_ep6_id, NULL, ep6_handler, NULL) < 0) {
-                hpsdr_dbg_printf(1, "ERROR: create old protocol thread");
+                hpsdr_dbg_printf(1, "ERROR: create protocol thread");
                 return EXIT_FAILURE;
             }
             pthread_detach(op_handler_ep6_id);

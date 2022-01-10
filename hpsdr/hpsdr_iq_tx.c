@@ -45,8 +45,6 @@ unsigned int tx_block = 0;
  static long last_freq = 0;
    pthread_t iqsender_tx_id;
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
 void iqsender_init(uint64_t TuneFrequency) {
     if (sender_init || (TuneFrequency < 1000)) {
         printf("avoid init!\n");
@@ -116,15 +114,6 @@ void* iqsender_tx(void *data) {
     hpsdr_dbg_printf(0, "START SENDER THREAD\n");
     int Harmonic = 1;
     int buffer_offset = 0;
-    int n;
-    int policy;
-    struct sched_param param;
-
-    pthread_getschedparam(pthread_self(), &policy, &param);
-    param.sched_priority = sched_get_priority_max(policy);
-    n = pthread_setschedparam(pthread_self(), policy, &param);
-    if (n != 0)
-        hpsdr_dbg_printf(0, "WARNING: iqsender_tx can't get max priority (%d)\n", param.sched_priority);
 
     if (tx_arg.iq_buffer == NULL) {
         hpsdr_dbg_printf(0, "ERROR: tx buffer not allocated\n");
@@ -139,12 +128,8 @@ void* iqsender_tx(void *data) {
 
         buffer_offset = tx_block * IQBURST;
 
-        pthread_mutex_lock(&mutex);
         iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, IQBURST, Harmonic);
-        pthread_mutex_unlock(&mutex);
-
-        for (n = 0; n < IQBURST - 1; n++)
-            (tx_arg.iq_buffer + buffer_offset)[n] = 0 + 0 * I;
+        //memset((tx_arg.iq_buffer + buffer_offset), 0, IQBURST * 2);
 
         ++tx_block;
         if (tx_block > TXLEN - 1)
