@@ -25,10 +25,12 @@
  *
  */
 
+#include <unistd.h>
 #include <stdint.h>
 #include <time.h>
 #include <string.h>
 #include <math.h>
+#include <pthread.h>
 
 #include "hpsdr_debug.h"
 #include "hpsdr_main.h"
@@ -174,6 +176,9 @@ void* ep6_handler(void *arg) {
     last_seqnum = 0xffffffff;
     iqsender_clear_buffer();
 
+    pthread_mutex_lock(&mutex);
     hpsdr_dbg_printf(1, "Stop handler_ep6\n");
+    pthread_mutex_unlock(&mutex);
+
     return NULL;
 }

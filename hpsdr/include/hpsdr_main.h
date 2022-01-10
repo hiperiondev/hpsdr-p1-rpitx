@@ -36,6 +36,7 @@
 #include "librpitx.h"
 
 extern pthread_t iqsender_tx_id;
+extern pthread_mutex_t mutex;
 
 extern int IQBURST;
 iqdmasync_t *iqsender;

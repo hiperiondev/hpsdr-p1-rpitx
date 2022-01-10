@@ -54,3 +54,4 @@ dkms.conf
 .project
 .settings/
 Release/
+tmp/

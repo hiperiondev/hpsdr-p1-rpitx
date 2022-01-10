@@ -45,6 +45,8 @@ unsigned int tx_block = 0;
  static long last_freq = 0;
    pthread_t iqsender_tx_id;
 
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void iqsender_init(uint64_t TuneFrequency) {
     if (sender_init || (TuneFrequency < 1000)) {
         printf("avoid init!\n");
@@ -137,7 +139,10 @@ void* iqsender_tx(void *data) {
 
         buffer_offset = tx_block * IQBURST;
 
+        pthread_mutex_lock(&mutex);
         iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, IQBURST, Harmonic);
+        pthread_mutex_unlock(&mutex);
+
         for (n = 0; n < IQBURST - 1; n++)
             (tx_arg.iq_buffer + buffer_offset)[n] = 0 + 0 * I;
 
