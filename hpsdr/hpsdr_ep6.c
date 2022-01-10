@@ -169,16 +169,17 @@ void* ep6_handler(void *arg) {
 
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &delay, NULL);
 
+        pthread_mutex_lock(&mutex);
         hpsdr_network_send(buffer, 1032);
+        pthread_mutex_unlock(&mutex);
     }
     active_thread = 0;
     seqnum = 0;
     last_seqnum = 0xffffffff;
     iqsender_clear_buffer();
 
-    pthread_mutex_lock(&mutex);
+
     hpsdr_dbg_printf(1, "Stop handler_ep6\n");
-    pthread_mutex_unlock(&mutex);
 
     return NULL;
 }
