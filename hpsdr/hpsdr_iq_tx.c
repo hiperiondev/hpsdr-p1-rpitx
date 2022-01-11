@@ -105,6 +105,10 @@ void iqsender_set(void) {
     }
 }
 
+void iqsender_clear_buffer(void) {
+    memset(tx_arg.iq_buffer, 0, IQBURST * TXLEN * sizeof(float _Complex));
+}
+
 void* iqsender_tx(void *data) {
     hpsdr_dbg_printf(0, "START SENDER THREAD\n");
     int buffer_offset = 0;
