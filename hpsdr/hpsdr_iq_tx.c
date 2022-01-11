@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez LU3VEA (lu3vea @ gmail . com))
- * * Project Site: https://github.com/hiperiondev/hpsdr-protocol1-rpitx *
+ * * Project Site: https://github.com/hiperiondev/hpsdr-p1-rpitx *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -55,7 +55,7 @@ void iqsender_init(uint64_t TuneFrequency) {
 
     float ppmpll = 0.0;
 
-    iqdmasync_init(&(tx_arg.iqsender), TuneFrequency, 48000, 14, IQBURST * 4, MODE_IQ);
+    iqdmasync_init(&(tx_arg.iqsender), TuneFrequency, 48000, 14, iqburst * 4, MODE_IQ);
     iqdmasync_set_ppm(&(tx_arg.iqsender), ppmpll);
 
     tx_init = true;
@@ -83,7 +83,7 @@ void iqsender_set(void) {
             return;
         }
 
-        hpsdr_dbg_printf(1, "Starting TX at Freq %ld (fifosize = %d)\n", settings.tx_freq, IQBURST * 4);
+        hpsdr_dbg_printf(1, "Starting TX at Freq %ld (fifosize = %d)\n", settings.tx_freq, iqburst * 4);
         iqsender_init(settings.tx_freq);
         last_freq = settings.tx_freq;
         hpsdr_dbg_printf(0, "FTX at %ld\n", settings.tx_freq);
@@ -106,7 +106,7 @@ void iqsender_set(void) {
 }
 
 void iqsender_clear_buffer(void) {
-    memset(tx_arg.iq_buffer, 0, IQBURST * TXLEN * sizeof(float _Complex));
+    memset(tx_arg.iq_buffer, 0, iqburst * TXLEN * sizeof(float _Complex));
 }
 
 void* iqsender_tx(void *data) {
@@ -124,9 +124,8 @@ void* iqsender_tx(void *data) {
             continue;
         }
 
-        buffer_offset = tx_block * IQBURST;
-        iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, IQBURST, Harmonic);
-        // memset((tx_arg.iq_buffer + buffer_offset), 0, IQBURST * 2);  // clear used buffer
+        buffer_offset = tx_block * iqburst;
+        iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, iqburst, Harmonic);
 
         ++tx_block;
         if (tx_block > TXLEN - 1)

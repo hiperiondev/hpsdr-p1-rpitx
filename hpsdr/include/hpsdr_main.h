@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez LU3VEA (lu3vea @ gmail . com))
- * * Project Site: https://github.com/hiperiondev/hpsdr-protocol1-rpitx *
+ * * Project Site: https://github.com/hiperiondev/hpsdr-p1-rpitx *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -37,22 +37,21 @@
 
 extern pthread_t iqsender_tx_id;
 
-extern int IQBURST;
+extern int iqburst;
 iqdmasync_t *iqsender;
 extern int enable_thread;
 extern int active_thread;
-extern int DEVICE_EMULATION;
-
-// TX fifo (needed for PURESIGNAL)
+extern int device_emulation;
 
 // RTXLEN must be an sixteen-fold multiple of 63
 // because we have 63 samples per 512-byte METIS packet,
 // and two METIS packets per TCP/UDP packet,
 // and two/four/eight-fold up-sampling if the TX sample
 // rate is 96000/192000/384000
-#define TXLEN 10 // tx buffer len = TXLEN * IQBURST
-extern int tx_iq_ptr;
-extern bool tx_init;
+#define TXLEN 10 // tx buffer len = TXLEN * iqburst
+
+extern      int tx_iq_ptr;
+extern     bool tx_init;
 extern uint32_t last_seqnum;
 extern uint32_t seqnum;
 
@@ -60,7 +59,6 @@ typedef struct tx_args_st {
     float _Complex *iq_buffer;
     iqdmasync_t *iqsender;
 } tx_args_t;
-
 tx_args_t tx_arg;
 
 // Constants for conversion of TX power

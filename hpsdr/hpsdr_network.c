@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez LU3VEA (lu3vea @ gmail . com))
- * * Project Site: https://github.com/hiperiondev/hpsdr-protocol1-rpitx *
+ * * Project Site: https://github.com/hiperiondev/hpsdr-p1-rpitx *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -45,23 +45,23 @@
 #include "hpsdr_ep6.h"
 #include "hpsdr_tx_samples.h"
 
-pthread_t op_handler_ep6_id;
-int sock_TCP_Server;
-int sock_TCP_Client;
-int sock_udp;
+         pthread_t op_handler_ep6_id;
+               int sock_TCP_Server;
+               int sock_TCP_Client;
+               int sock_udp;
 struct sockaddr_in addr;
 struct sockaddr_in addr_udp;
-socklen_t lenaddr;
+         socklen_t lenaddr;
 struct sockaddr_in addr_from;
-struct timeval tv;
-uint8_t buffer[1032];
-int yes = 1;
-int bytes_read, bytes_left;
-int size;
-uint32_t last_seqnum = 0xffffffff, seqnum;  // sequence number of received packet
-int udp_retries = 0;
-uint32_t code;
-uint32_t *code0 = (uint32_t*) buffer;  // fast access to code of first buffer
+    struct timeval tv;
+           uint8_t buffer[1032];
+               int yes = 1;
+               int bytes_read, bytes_left;
+               int size;
+          uint32_t last_seqnum = 0xffffffff, seqnum;  // sequence number of received packet
+               int udp_retries = 0;
+          uint32_t code;
+          uint32_t *code0 = (uint32_t*) buffer;  // fast access to code of first buffer
 
 uint8_t reply[11] = {
         0xef, //
@@ -272,8 +272,8 @@ int hpsdr_network_process(void) {
                 reply[2] = 3;
             }
             reply[9] = 31; // software version
-            reply[10] = DEVICE_EMULATION;
-            if (DEVICE_EMULATION == DEVICE_HERMES_LITE2) {
+            reply[10] = device_emulation;
+            if (device_emulation == DEVICE_HERMES_LITE2) {
                 // use hl1 device id and new software version
                 reply[9] = 41;
                 reply[10] = DEVICE_HERMES_LITE;

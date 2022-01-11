@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez LU3VEA (lu3vea @ gmail . com))
- * * Project Site: https://github.com/hiperiondev/hpsdr-protocol1-rpitx *
+ * * Project Site: https://github.com/hiperiondev/hpsdr-p1-rpitx *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -104,14 +104,14 @@ void* ep6_handler(void *arg) {
             case 0:
                 // do not set ptt and cw in c0
                 // do not set adc overflow in c1
-                if (DEVICE_EMULATION == DEVICE_HERMES_LITE2) {
+                if (device_emulation == DEVICE_HERMES_LITE2) {
                     *(pointer + 5) = (0 >> 8) & 0x7F;
                     *(pointer + 6) = 0 & 0xFF;
                 }
                 header_offset = 8;
                 break;
             case 8:
-                if (DEVICE_EMULATION == DEVICE_HERMES_LITE2) {
+                if (device_emulation == DEVICE_HERMES_LITE2) {
                     // hl2: temperature
                     *(pointer + 4) = 0;
                     *(pointer + 5) = 0 & 0x7F;  // pseudo random number

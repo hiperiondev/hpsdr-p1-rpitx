@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez LU3VEA (lu3vea @ gmail . com))
- * * Project Site: https://github.com/hiperiondev/hpsdr-protocol1-rpitx *
+ * * Project Site: https://github.com/hiperiondev/hpsdr-p1-rpitx *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -34,6 +34,6 @@ void iqsender_deinit(void);
 void iqsender_init(uint64_t TuneFrequency);
 void iqsender_set(void);
 void iqsender_clear_buffer(void);
-void* iqsender_tx(void *data);
+void *iqsender_tx(void *data);
 
 #endif /* HPSDR_IQ_TX_H_ */

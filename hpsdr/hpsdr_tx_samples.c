@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez LU3VEA (lu3vea @ gmail . com))
- * * Project Site: https://github.com/hiperiondev/hpsdr-protocol1-rpitx *
+ * * Project Site: https://github.com/hiperiondev/hpsdr-p1-rpitx *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -67,10 +67,10 @@ void samples_rcv(uint8_t *buffer) {
         dqsample = sampleq * 0.000030518509476;
         tx_arg.iq_buffer[tx_iq_ptr++] = disample + dqsample * I;
 
-        if (tx_iq_ptr > TXLEN * IQBURST)
+        if (tx_iq_ptr > TXLEN * iqburst)
             tx_iq_ptr = 0;
 
-        if ((tx_iq_ptr % IQBURST) == 0)
+        if ((tx_iq_ptr % iqburst) == 0)
             ++burst_cnt;
 
         if (j == 62)

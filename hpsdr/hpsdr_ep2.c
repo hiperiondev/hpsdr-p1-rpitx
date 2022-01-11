@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez LU3VEA (lu3vea @ gmail . com))
- * * Project Site: https://github.com/hiperiondev/hpsdr-protocol1-rpitx *
+ * * Project Site: https://github.com/hiperiondev/hpsdr-p1-rpitx *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -99,6 +99,7 @@ struct protocol_t settings = {
 };
 
 #define chk_data(a,b,c,FUNCTION) if ((a) != b) {FUNCTION(frame, &b, a, c);}
+
 void ep2_handler(uint8_t *frame) {
     uint16_t data;
     int rc;
@@ -167,7 +168,7 @@ void ep2_handler(uint8_t *frame) {
         if (mod)
             hpsdr_dbg_printf(1, "RXout=%d RXant=%d TXrel=%d Duplex=%d\n", settings.alexRXout, settings.alexRXant, settings.AlexTXrel, settings.duplex);
 
-        if (DEVICE_EMULATION == DEVICE_C25) {
+        if (device_emulation == DEVICE_C25) {
             // charly25: has two 18-dB preamps that are switched with "preamp" and "dither"
             //           and two attenuators encoded in alex-att
             //           both only applies to rx1!
@@ -267,7 +268,7 @@ void ep2_handler(uint8_t *frame) {
             // to 20 dB, because the preamp cannot be switched.
             // if (!rx1_attE) rx_att[0]=20;
         }
-        if (DEVICE_EMULATION != DEVICE_C25) {
+        if (device_emulation != DEVICE_C25) {
             // set rx amplification factors. no switchable preamps available normally.
             rxatt_dbl[0] = pow(10.0, -0.05 * (10 * settings.AlexAtt + settings.rx_att[0]));
             rxatt_dbl[1] = pow(10.0, -0.05 * (settings.rx_att[1]));
@@ -307,7 +308,7 @@ void ep2_handler(uint8_t *frame) {
         chk_data(EP2_RX7ADC(frame), settings.rx_adc[6], "RX7 ADC", ep2_rx7adc);
         chk_data(EP2_TXATT(frame) , settings.txatt    , "TX ATT" , ep2_txatt);
         txatt_dbl = pow(10.0, -0.05 * (double) settings.txatt);
-        if (DEVICE_EMULATION == DEVICE_C25) {
+        if (device_emulation == DEVICE_C25) {
             // redpitaya: hard-wired adc settings.
             settings.rx_adc[0] = 0;
             settings.rx_adc[1] = 1;
