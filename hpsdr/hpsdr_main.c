@@ -56,7 +56,7 @@ int DEVICE_EMULATION;
 int enable_thread;
 int active_thread;
 double c1, c2;
-int IQBURST = 100;
+int IQBURST = 1000;
 
 char exit_signal[33][17] = {
         "NOSIGNAL",
@@ -223,6 +223,8 @@ int main(int argc, char *argv[]) {
             c2 = 0.090;
             break;
     }
+
+    hpsdr_dbg_printf(0, "iqburst: %d\n", IQBURST);
 
     tx_arg.iq_buffer = (float _Complex*) malloc(IQBURST * TXLEN * sizeof(float _Complex));
     tx_arg.iqsender = NULL;

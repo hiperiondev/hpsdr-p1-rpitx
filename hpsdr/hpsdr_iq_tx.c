@@ -38,6 +38,8 @@
 
 #include "librpitx.h"
 
+#define Harmonic 1
+
         bool tx_init = false;
         bool sender_init = false;
         bool tx_sending = false;
@@ -95,9 +97,7 @@ void iqsender_set(void) {
         }
 
         hpsdr_dbg_printf(0, "Changing TX frequency\n");
-        iqsender_clear_buffer();
         iqsender_deinit();
-
         iqsender_init(settings.tx_freq);
 
         hpsdr_dbg_printf(0, "TX frequency changed: %d->%d\n", last_freq, settings.tx_freq);
@@ -105,14 +105,8 @@ void iqsender_set(void) {
     }
 }
 
-void iqsender_clear_buffer(void) {
-    for (int n = 0; n < TXLEN * IQBURST; n++)
-        tx_arg.iq_buffer[n] = 0 + 0 * I;
-}
-
 void* iqsender_tx(void *data) {
     hpsdr_dbg_printf(0, "START SENDER THREAD\n");
-    int Harmonic = 1;
     int buffer_offset = 0;
 
     if (tx_arg.iq_buffer == NULL) {
@@ -127,9 +121,8 @@ void* iqsender_tx(void *data) {
         }
 
         buffer_offset = tx_block * IQBURST;
-
         iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, IQBURST, Harmonic);
-        //memset((tx_arg.iq_buffer + buffer_offset), 0, IQBURST * 2);
+        // memset((tx_arg.iq_buffer + buffer_offset), 0, IQBURST * 2);  // clear used buffer
 
         ++tx_block;
         if (tx_block > TXLEN - 1)
