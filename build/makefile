@@ -45,7 +45,7 @@ main-build: hpsdr_p1_rpitx
 hpsdr_p1_rpitx: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Linker'
-	arm-linux-gnueabihf-gcc  -o "hpsdr_p1_rpitx" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc  -o "hpsdr_p1_rpitx" -fcommon $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
