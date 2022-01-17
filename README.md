@@ -4,7 +4,7 @@ Transmitter with Raspberry PI over OpenHPSDR
 
 ### Please read the documentation on the wiki: https://github.com/hiperiondev/hpsdr-p1-rpitx/wiki 
 
- It was tested with Sdrangel and linhpsdr software on a Raspberry Pi Zero W up to 500Mhz.
+ It was tested with Sdrangel and linhpsdr software on a Raspberry Pi Zero W and Raspberry Pi 4 up to 500Mhz.
 
 ### This program is BETA
 #### Problems:
