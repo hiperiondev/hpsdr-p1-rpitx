@@ -103,6 +103,9 @@ static void terminate(int num) {
 }
 
 int main(int argc, char *argv[]) {
+    int i;
+    char filename[256] = "hpsdr_p1_rpitx.conf";
+
     for (int i = 0; i < 64; i++) {
         struct sigaction sa;
 
@@ -111,7 +114,16 @@ int main(int argc, char *argv[]) {
         sigaction(i, &sa, NULL);
     }
 
-    hpsdr_config_init();
+    for (i = 1; i < argc; i++) {
+        if (!strncmp(argv[i], "-config", 7)) {
+            strncpy(filename, argv[i+1], 255);
+            filename[255] = '\0';
+        }
+    }
+
+
+    hpsdr_dbg_printf(0, "config file: %s\n", filename);
+    hpsdr_config_init(filename);
 
     if (confs->global.debug) {
         librpitx_dbg_setlevel(1);

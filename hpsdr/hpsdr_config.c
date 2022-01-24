@@ -194,7 +194,7 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
 #undef confs
 }
 
-int hpsdr_config_init(void) {
+int hpsdr_config_init(char *filename) {
     confs = calloc(1, sizeof(struct Configs_T));
 
     if (!confs) {
@@ -202,7 +202,7 @@ int hpsdr_config_init(void) {
         return 1;
     }
     if (load_ini_path(
-            "hpsdr_p1_rpitx.conf",
+            filename,
             hpsdh_config_format,
             NULL,
             populate_config,

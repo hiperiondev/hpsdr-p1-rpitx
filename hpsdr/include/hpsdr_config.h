@@ -28,7 +28,7 @@
 #ifndef HPSDR_CONFIG_H_
 #define HPSDR_CONFIG_H_
 
-int hpsdr_config_init(void);
+int hpsdr_config_init(char *filename);
 int hpsdr_config_deinit(void);
 
 #endif /* HPSDR_CONFIG_H_ */
