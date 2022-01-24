@@ -1,3 +1,7 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
 -include ../makefile.init
 
 RM := rm -rf
@@ -6,7 +10,9 @@ RM := rm -rf
 -include sources.mk
 -include librpitx-C/librpitx/modulation/subdir.mk
 -include librpitx-C/librpitx/core/subdir.mk
+-include libconfini/src/subdir.mk
 -include hpsdr/subdir.mk
+-include exceptions4c/src/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -24,7 +30,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := hpsdr_p1_rpitx
+BUILD_ARTIFACT_NAME := hpsdr_protocol1_rpitx
 BUILD_ARTIFACT_EXTENSION :=
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -35,19 +41,19 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 all: main-build
 
 # Main-build Target
-main-build: hpsdr_p1_rpitx
+main-build: hpsdr_protocol1_rpitx
 
 # Tool invocations
-hpsdr_p1_rpitx: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+hpsdr_protocol1_rpitx: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Linker'
-	gcc  -o "hpsdr_p1_rpitx" -fcommon $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc  -o "hpsdr_protocol1_rpitx" -fcommon $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) hpsdr_p1_rpitx
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) hpsdr_protocol1_rpitx
 	-@echo ' '
 
 .PHONY: all clean dependents

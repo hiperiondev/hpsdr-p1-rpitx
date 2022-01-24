@@ -1,3 +1,7 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
 OBJ_SRCS := 
 ASM_SRCS := 
 C_SRCS := 
@@ -9,7 +13,9 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+exceptions4c/src \
 hpsdr \
+libconfini/src \
 librpitx-C/librpitx/core \
 librpitx-C/librpitx/modulation \
 

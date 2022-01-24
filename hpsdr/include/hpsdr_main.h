@@ -37,6 +37,7 @@
 
 extern pthread_t iqsender_tx_id;
 
+extern struct Configs_T *confs;
 extern int iqburst;
 iqdmasync_t *iqsender;
 extern int enable_thread;

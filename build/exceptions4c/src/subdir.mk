@@ -4,41 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../hpsdr/hpsdr_config.c \
-../hpsdr/hpsdr_debug.c \
-../hpsdr/hpsdr_ep2.c \
-../hpsdr/hpsdr_ep6.c \
-../hpsdr/hpsdr_functions.c \
-../hpsdr/hpsdr_iq_tx.c \
-../hpsdr/hpsdr_main.c \
-../hpsdr/hpsdr_network.c \
-../hpsdr/hpsdr_tx_samples.c 
+../exceptions4c/src/e4c.c 
 
 OBJS += \
-./hpsdr/hpsdr_config.o \
-./hpsdr/hpsdr_debug.o \
-./hpsdr/hpsdr_ep2.o \
-./hpsdr/hpsdr_ep6.o \
-./hpsdr/hpsdr_functions.o \
-./hpsdr/hpsdr_iq_tx.o \
-./hpsdr/hpsdr_main.o \
-./hpsdr/hpsdr_network.o \
-./hpsdr/hpsdr_tx_samples.o 
+./exceptions4c/src/e4c.o 
 
 C_DEPS += \
-./hpsdr/hpsdr_config.d \
-./hpsdr/hpsdr_debug.d \
-./hpsdr/hpsdr_ep2.d \
-./hpsdr/hpsdr_ep6.d \
-./hpsdr/hpsdr_functions.d \
-./hpsdr/hpsdr_iq_tx.d \
-./hpsdr/hpsdr_main.d \
-./hpsdr/hpsdr_network.d \
-./hpsdr/hpsdr_tx_samples.d 
+./exceptions4c/src/e4c.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-hpsdr/%.o: ../hpsdr/%.c hpsdr/subdir.mk
+exceptions4c/src/%.o: ../exceptions4c/src/%.c exceptions4c/src/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
 	gcc -I"../hpsdr/include" -I"../librpitx-C/librpitx" -I"../librpitx-C/librpitx/core/include" -I"../librpitx-C/librpitx/modulation/include" -I"../exceptions4c/src" -I"../libconfini/src" -O3 -g3 -Wall -c -fmessage-length=0 -fcommon -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
