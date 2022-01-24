@@ -141,27 +141,27 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
                     memcpy(dspclone, disp, sizeof(IniDispatch));
                     dspclone->value = ini_array_release(&remaining, ',', disp->format);
                     dspclone->v_len = strlen(dspclone->value);
-                    set_new_strarray(&confs->select_bands.band_str, &confs->select_bands.band_str_length, dspclone, ':');
+                    set_new_strarray(&confs->filters.band_str, &confs->filters.band_str_length, dspclone, ':');
                     if (arrlen > 1) {
                         /*  array of integers `clients.data[1]` exists  */
                         dspclone->value = ini_array_release(&remaining, ',', disp->format);
                         dspclone->v_len = strlen(dspclone->value);
-                        set_new_intarray(&confs->select_bands.band_start, &confs->select_bands.band_start_length, dspclone, ':');
-                        set_new_intarray(&confs->select_bands.band_end, &confs->select_bands.band_end_length, dspclone, ':');
-                        set_new_intarray(&confs->select_bands.gpio_lpf, &confs->select_bands.gpio_lpf_length, dspclone, ':');
-                        set_new_intarray(&confs->select_bands.gpio_hpf, &confs->select_bands.gpio_hpf_length, dspclone, ':');
+                        set_new_intarray(&confs->filters.band_start, &confs->filters.band_start_length, dspclone, ':');
+                        set_new_intarray(&confs->filters.band_end, &confs->filters.band_end_length, dspclone, ':');
+                        set_new_intarray(&confs->filters.gpio_lpf, &confs->filters.gpio_lpf_length, dspclone, ':');
+                        set_new_intarray(&confs->filters.gpio_hpf, &confs->filters.gpio_hpf_length, dspclone, ':');
                     }
                     free(dspclone);
                 }
             }
             if (ini_string_match_si("enabled", disp->data, disp->format)) {
-                confs->select_bands.enabled = ini_get_bool(disp->value, 0);
+                confs->filters.enabled = ini_get_bool(disp->value, 0);
             }
             if (ini_string_match_si("type", disp->data, disp->format)) {
-                set_new_string(&confs->select_bands.type, disp);
+                set_new_string(&confs->filters.type, disp);
             }
             if (ini_string_match_si("gpios", disp->data, disp->format)) {
-                set_new_intarray(&confs->select_bands.gpio, &confs->select_bands.gpio_length, disp, ',');
+                set_new_intarray(&confs->filters.gpio, &confs->filters.gpio_length, disp, ',');
             }
         } else if (ini_array_match("global", disp->append_to, '.', disp->format)) {
             if (ini_string_match_si("debug", disp->data, disp->format)) {
@@ -226,11 +226,6 @@ int hpsdr_config_init(char *filename) {
     PRINT_CONF_SIMPLEVAL(global.emulation, "%s");
     hpsdr_dbg_printf(0, "global.emulation_id" " -> " "%d" "\n", confs->global.emulation_id);
 
-    //PRINT_CONF_SIMPLEVAL(select_bands.enabled, "%d");
-    //PRINT_CONF_SIMPLEVAL(select_bands.type, "%s");
-    //PRINT_CONF_ARRAY(select_bands.gpio, "%d");
-    //PRINT_CONF_ARRAY_WITHLABEL(select_bands.band_str, select_bands.data[0], "%s");
-
 #undef PRINT_CONF_SIMPLEVAL
 #undef PRINT_CONF_ARRAY
 #undef PRINT_CONF_ARRAY_WITHLABEL
@@ -240,9 +235,9 @@ int hpsdr_config_init(char *filename) {
 
 int hpsdr_config_deinit(void) {
     free(confs->global.emulation);
-    free(confs->select_bands.type);
-    free(confs->select_bands.gpio);
-    free(confs->select_bands.band_str);
+    free(confs->filters.type);
+    free(confs->filters.gpio);
+    free(confs->filters.band_str);
     free(confs);
     return 0;
 }

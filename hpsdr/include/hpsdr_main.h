@@ -59,7 +59,7 @@ struct Configs_T {
         size_t band_end_length;
         size_t gpio_lpf_length;
         size_t gpio_hpf_length;
-    } select_bands;
+    } filters;
 };
 struct Configs_T *confs;
 
