@@ -28,7 +28,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <confini.h>
+#include <ctype.h>
+
+#include "hpsdr_main.h"
+#include "confini.h"
+
+char *devices[9] = {
+        "metis",
+        "hermes",
+        "griffin",
+        "angelia",
+        "orion",
+        "hermeslite",
+        "hermeslite2",
+        "orion2",
+        "c25"
+};
+
+int devices_id[9] = {
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        1006,
+        10,
+        100
+};
 
 #define CLEAN_MALLOC(DEST, SIZE, RETVAL) \
     free(DEST); \
@@ -55,31 +82,6 @@
         .disabled_after_space = false, \
         .disabled_can_be_implicit = true \
     })
-
-struct Configs_T {
-    struct {
-        bool debug;
-         int iqburst;
-        char *emulation;
-    } global;
-    struct {
-          bool enabled;
-          char *type;
-           int *gpio;
-        size_t gpio_length;
-          char **band_str;
-           int *band_start;
-           int *band_end;
-           int *gpio_lpf;
-           int *gpio_hpf;
-        size_t band_str_length;
-        size_t band_start_length;
-        size_t band_end_length;
-        size_t gpio_lpf_length;
-        size_t gpio_hpf_length;
-    } select_bands;
-};
-struct Configs_T *confs;
 
 /*  If `dest_str` is non-`NULL` free it, then `strdup(disp->value)` into it  */
 int set_new_string(char **const dest_str, IniDispatch *const disp) {
@@ -118,6 +120,11 @@ int set_new_intarray(int **const dest_arr, size_t *const dest_len, const IniDisp
 
 static int populate_config(IniDispatch *const disp, void *const v_confs) {
 #define confs ((struct Configs_T *) v_confs)
+
+    // defaults
+    confs->global.iqburst = 1000;
+    confs->global.emulation_id = 6;
+
     if (disp->type == INI_KEY) {
         if (ini_array_match("select_bands", disp->append_to, '.', disp->format)) {
             if (ini_string_match_si("bands", disp->data, disp->format)) {
@@ -167,6 +174,22 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
             }
         }
     }
+
+
+
+    if (confs->global.emulation) {
+        int l;
+        for (int n = 0; n < 9; n++) {
+            for (l = 0; l < strlen(confs->global.emulation); l++)
+                confs->global.emulation[l] = tolower(confs->global.emulation[l]);
+
+            if (!strcmp(confs->global.emulation, devices[n])) {
+                confs->global.emulation_id = devices_id[n];
+                break;
+            }
+        }
+    }
+
     return 0;
 #undef confs
 }
@@ -187,6 +210,7 @@ int hpsdr_config_init(void) {
             )
         ) {
         fprintf(stderr, "Sorry, something went wrong :-(\n");
+        fprintf(stderr, "\n\n\n\n\n");
         return 1;
     }
 
@@ -202,6 +226,7 @@ int hpsdr_config_init(void) {
     PRINT_CONF_SIMPLEVAL(global.debug, "%d");
     PRINT_CONF_SIMPLEVAL(global.iqburst, "%d");
     PRINT_CONF_SIMPLEVAL(global.emulation, "%s");
+    printf("global.emulation_id" " -> " "%d" "\n", confs->global.emulation_id);
 
     PRINT_CONF_SIMPLEVAL(select_bands.enabled, "%d");
     PRINT_CONF_SIMPLEVAL(select_bands.type, "%s");

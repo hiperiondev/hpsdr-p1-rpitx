@@ -51,12 +51,13 @@
 #include "hpsdr_definitions.h"
 #include "hpsdr_iq_tx.h"
 #include "hpsdr_network.h"
+#include "hpsdr_config.h"
 
 int device_emulation;
 int enable_thread;
 int active_thread;
 double c1, c2;
-int iqburst = 1000;
+//int iqburst = 1000;
 
 char exit_signal[33][17] = {
         "NOSIGNAL",
@@ -97,12 +98,11 @@ char exit_signal[33][17] = {
 static void terminate(int num) {
     fprintf(stderr, "Caught signal - Terminating 0x%x/%d(%s)\n", num, num, exit_signal[num]);
     iqsender_deinit();
+    hpsdr_config_deinit();
     exit(1);
 }
 
 int main(int argc, char *argv[]) {
-    int i;
-
     for (int i = 0; i < 64; i++) {
         struct sigaction sa;
 
@@ -111,63 +111,14 @@ int main(int argc, char *argv[]) {
         sigaction(i, &sa, NULL);
     }
 
-    // examples for METIS:   ATLAS bus with Mercury/Penelope boards
-    // examples for HERMES:  ANAN10, ANAN100
-    // examples for ANGELIA: ANAN100D
-    // examples for ORION:   ANAN200D
-    // examples for ORION2:  ANAN7000, ANAN8000
-    // examples for C25:     RedPitaya based boards with fixed ADC connections
-    device_emulation = DEVICE_HERMES_LITE;
+    hpsdr_config_init();
 
-    for (i = 1; i < argc; i++) {
-        if (!strncmp(argv[i], "-atlas", 6)) {
-            device_emulation = DEVICE_METIS;
-        }
-
-        if (!strncmp(argv[i], "-hermes", 7)) {
-            hpsdr_dbg_printf(1, "HERMES\n");
-            device_emulation = DEVICE_HERMES;
-        }
-
-        if (!strncmp(argv[i], "-griffin", 8)) {
-            device_emulation = DEVICE_GRIFFIN;
-        }
-
-        if (!strncmp(argv[i], "-angelia", 8)) {
-            device_emulation = DEVICE_ANGELIA;
-        }
-
-        if (!strncmp(argv[i], "-orion", 6)) {
-            device_emulation = DEVICE_ORION;
-        }
-
-        if (!strncmp(argv[i], "-orion2", 7)) {
-            device_emulation = DEVICE_ORION2;
-        }
-
-        if (!strncmp(argv[i], "-hermeslite", 11)) {
-            device_emulation = DEVICE_HERMES_LITE;
-        }
-
-        if (!strncmp(argv[i], "-hermeslite2", 12)) {
-            device_emulation = DEVICE_HERMES_LITE2;
-        }
-
-        if (!strncmp(argv[i], "-c25", 4)) {
-            device_emulation = DEVICE_C25;
-        }
-
-        if (!strncmp(argv[i], "-debug", 6)) {
-            librpitx_dbg_setlevel(1);
-            hpsdr_dbg_setlevel(1);
-        }
-
-        if (!strncmp(argv[i], "-iqburst", 8)) {
-            iqburst = atoi(argv[i + 1]);
-        }
+    if (confs->global.debug) {
+        librpitx_dbg_setlevel(1);
+        hpsdr_dbg_setlevel(1);
     }
 
-    switch (device_emulation) {
+    switch (confs->global.emulation_id) {
 
         case DEVICE_METIS:
             hpsdr_dbg_printf(1, "DEVICE is METIS\n");
@@ -224,9 +175,9 @@ int main(int argc, char *argv[]) {
             break;
     }
 
-    hpsdr_dbg_printf(0, "iqburst: %d\n", iqburst);
+    hpsdr_dbg_printf(0, "iqburst: %d\n", confs->global.iqburst);
 
-    tx_arg.iq_buffer = (float _Complex*) malloc(iqburst * TXLEN * sizeof(float _Complex));
+    tx_arg.iq_buffer = (float _Complex*) malloc(confs->global.iqburst * TXLEN * sizeof(float _Complex));
     tx_arg.iqsender = NULL;
 
     pthread_create(&iqsender_tx_id, NULL, &iqsender_tx, (void*) &tx_arg);

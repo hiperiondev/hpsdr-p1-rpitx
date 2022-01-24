@@ -37,8 +37,32 @@
 
 extern pthread_t iqsender_tx_id;
 
-extern struct Configs_T *confs;
-extern int iqburst;
+struct Configs_T {
+    struct {
+        bool debug;
+         int iqburst;
+        char *emulation;
+         int emulation_id;
+    } global;
+    struct {
+          bool enabled;
+          char *type;
+           int *gpio;
+        size_t gpio_length;
+          char **band_str;
+           int *band_start;
+           int *band_end;
+           int *gpio_lpf;
+           int *gpio_hpf;
+        size_t band_str_length;
+        size_t band_start_length;
+        size_t band_end_length;
+        size_t gpio_lpf_length;
+        size_t gpio_hpf_length;
+    } select_bands;
+};
+struct Configs_T *confs;
+
 iqdmasync_t *iqsender;
 extern int enable_thread;
 extern int active_thread;
