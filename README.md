@@ -9,6 +9,6 @@ Transmitter with Raspberry PI over OpenHPSDR
 ### This program is BETA
 
 #### TODO:
-- ~~Put all configures on config file~~ DONE
+- ~~Put all configures on config file~~ -> [DONE]
 - Add hardware LPF and HPF filters selector
 - Move librpitx to UIO driver
