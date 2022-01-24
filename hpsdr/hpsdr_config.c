@@ -121,11 +121,6 @@ int set_new_intarray(int **const dest_arr, size_t *const dest_len, const IniDisp
 
 static int populate_config(IniDispatch *const disp, void *const v_confs) {
 #define confs ((struct Configs_T *) v_confs)
-
-    // defaults
-    confs->global.iqburst = 1000;
-    confs->global.emulation_id = 6;
-
     if (disp->type == INI_KEY) {
         if (ini_array_match("select_bands", disp->append_to, '.', disp->format)) {
             if (ini_string_match_si("bands", disp->data, disp->format)) {
@@ -176,6 +171,7 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
         }
     }
 
+    bool emu = false;
     if (confs->global.emulation) {
         int l;
         for (int n = 0; n < 9; n++) {
@@ -184,10 +180,13 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
 
             if (!strcmp(confs->global.emulation, devices[n])) {
                 confs->global.emulation_id = devices_id[n];
+                emu = true;
                 break;
             }
         }
     }
+    if (!emu)
+        confs->global.emulation_id = 6;
 
     return 0;
 #undef confs
@@ -221,9 +220,9 @@ int hpsdr_config_init(char *filename) {
 #define PRINT_CONF_SIMPLEVAL(PATH, FORMAT) \
         if (confs->PATH) { hpsdr_dbg_printf(0, #PATH " -> " FORMAT "\n", confs->PATH); }
 
-    PRINT_CONF_SIMPLEVAL(global.debug, "%d");
-    PRINT_CONF_SIMPLEVAL(global.iqburst, "%d");
-    PRINT_CONF_SIMPLEVAL(global.emulation, "%s");
+    hpsdr_dbg_printf(0, "global.debug" " -> " "%d" "\n", confs->global.debug);
+    hpsdr_dbg_printf(0, "global.iqburst" " -> " "%d" "\n", confs->global.iqburst);
+    hpsdr_dbg_printf(0, "global.emulation" " -> " "%s" "\n", confs->global.emulation);
     hpsdr_dbg_printf(0, "global.emulation_id" " -> " "%d" "\n", confs->global.emulation_id);
 
 #undef PRINT_CONF_SIMPLEVAL
