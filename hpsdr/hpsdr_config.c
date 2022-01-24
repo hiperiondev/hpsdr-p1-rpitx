@@ -32,6 +32,7 @@
 
 #include "hpsdr_debug.h"
 #include "hpsdr_main.h"
+#include "hpsdr_definitions.h"
 #include "confini.h"
 
 char *devices[9] = {
@@ -47,15 +48,15 @@ char *devices[9] = {
 };
 
 int devices_id[9] = {
-        0,
-        1,
-        2,
-        4,
-        5,
-        6,
-        1006,
-        10,
-        100
+    DEVICE_METIS,
+    DEVICE_HERMES,
+    DEVICE_GRIFFIN,
+    DEVICE_ANGELIA,
+    DEVICE_ORION,
+    DEVICE_HERMES_LITE,
+    DEVICE_HERMES_LITE2,
+    DEVICE_ORION2,
+    DEVICE_C25
 };
 
 #define CLEAN_MALLOC(DEST, SIZE, RETVAL) \
@@ -84,7 +85,6 @@ int devices_id[9] = {
         .disabled_can_be_implicit = true \
     })
 
-/*  If `dest_str` is non-`NULL` free it, then `strdup(disp->value)` into it  */
 int set_new_string(char **const dest_str, IniDispatch *const disp) {
     disp->d_len = ini_string_parse(disp->value, disp->format);
     CLEAN_MALLOC(*dest_str, disp->d_len, 1);
@@ -92,7 +92,6 @@ int set_new_string(char **const dest_str, IniDispatch *const disp) {
     return 0;
 }
 
-/*  If `dest_arr` is non-`NULL` free it, then parse `disp->value` into it as an array of strings  */
 int set_new_strarray(char ***const dest_arr, size_t *const dest_len, const IniDispatch *const disp, const char delimiter) {
     *dest_len = ini_array_get_length(disp->value, delimiter, disp->format);
     CLEAN_MALLOC(*dest_arr, *dest_len * sizeof(char*) + disp->v_len + 1, 1);
@@ -106,7 +105,6 @@ int set_new_strarray(char ***const dest_arr, size_t *const dest_len, const IniDi
     return 0;
 }
 
-/*  If `dest_arr` is non-`NULL` free it, then parse `disp->value` into it as an array of integers  */
 int set_new_intarray(int **const dest_arr, size_t *const dest_len, const IniDispatch *const disp, const char delimiter) {
     *dest_len = ini_array_get_length(disp->value, delimiter, disp->format);
     CLEAN_MALLOC(*dest_arr, *dest_len * sizeof(int), 1);
@@ -127,7 +125,6 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
                 const size_t arrlen = ini_array_get_length(disp->value, ',', disp->format);
                 char *remaining = disp->value;
                 if (arrlen > 0) {
-                    /*  array of strings `clients.data[0]` exists  */
                     IniDispatch *dspclone = malloc(sizeof(IniDispatch));
                     if (!dspclone) {
                         hpsdr_dbg_printf(0, "malloc() failed\n");
@@ -138,7 +135,6 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
                     dspclone->v_len = strlen(dspclone->value);
                     set_new_strarray(&confs->filters.band_str, &confs->filters.band_str_length, dspclone, ':');
                     if (arrlen > 1) {
-                        /*  array of integers `clients.data[1]` exists  */
                         dspclone->value = ini_array_release(&remaining, ',', disp->format);
                         dspclone->v_len = strlen(dspclone->value);
                         set_new_intarray(&confs->filters.band_start, &confs->filters.band_start_length, dspclone, ':');
@@ -186,7 +182,7 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
         }
     }
     if (!emu)
-        confs->global.emulation_id = 6;
+        confs->global.emulation_id = DEVICE_HERMES_LITE;
 
     return 0;
 #undef confs
