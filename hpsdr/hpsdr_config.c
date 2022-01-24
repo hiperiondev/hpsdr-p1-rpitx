@@ -30,6 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "hpsdr_debug.h"
 #include "hpsdr_main.h"
 #include "confini.h"
 
@@ -61,7 +62,7 @@ int devices_id[9] = {
     free(DEST); \
     DEST = malloc(SIZE); \
     if (!DEST) { \
-        fprintf(stderr, "malloc() failed\n"); \
+    	hpsdr_dbg_printf(0, "malloc() failed\n"); \
         return RETVAL; \
     }
 
@@ -134,7 +135,7 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
                     /*  array of strings `clients.data[0]` exists  */
                     IniDispatch *dspclone = malloc(sizeof(IniDispatch));
                     if (!dspclone) {
-                        fprintf(stderr, "malloc() failed\n");
+                        hpsdr_dbg_printf(0, "malloc() failed\n");
                         return 1;
                     }
                     memcpy(dspclone, disp, sizeof(IniDispatch));
@@ -175,8 +176,6 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
         }
     }
 
-
-
     if (confs->global.emulation) {
         int l;
         for (int n = 0; n < 9; n++) {
@@ -198,7 +197,7 @@ int hpsdr_config_init(char *filename) {
     confs = calloc(1, sizeof(struct Configs_T));
 
     if (!confs) {
-        fprintf(stderr, "allocate confs failed\n");
+        hpsdr_dbg_printf(0, "allocate confs failed\n");
         return 1;
     }
     if (load_ini_path(
@@ -209,29 +208,28 @@ int hpsdr_config_init(char *filename) {
             confs
             )
         ) {
-        fprintf(stderr, "Sorry, something went wrong :-(\n");
-        fprintf(stderr, "\n\n\n\n\n");
+        hpsdr_dbg_printf(0, "Sorry, something went wrong :-(\n");
         return 1;
     }
 
 #define PRINT_CONF_ARRAY_WITHLABEL(PATH, LABEL, FORMAT) \
         for (size_t idx = 0; idx < confs->PATH##_length; idx++) { \
-            if (confs->PATH) { printf(#LABEL "[%zu] -> " FORMAT "\n", idx, confs->PATH[idx]); } \
+            if (confs->PATH) { hpsdr_dbg_printf(0, #LABEL "[%zu] -> " FORMAT "\n", idx, confs->PATH[idx]); } \
         }
 #define PRINT_CONF_ARRAY(PATH, FORMAT) \
         PRINT_CONF_ARRAY_WITHLABEL(PATH, PATH, FORMAT)
 #define PRINT_CONF_SIMPLEVAL(PATH, FORMAT) \
-        if (confs->PATH) { printf(#PATH " -> " FORMAT "\n", confs->PATH); }
+        if (confs->PATH) { hpsdr_dbg_printf(0, #PATH " -> " FORMAT "\n", confs->PATH); }
 
     PRINT_CONF_SIMPLEVAL(global.debug, "%d");
     PRINT_CONF_SIMPLEVAL(global.iqburst, "%d");
     PRINT_CONF_SIMPLEVAL(global.emulation, "%s");
-    printf("global.emulation_id" " -> " "%d" "\n", confs->global.emulation_id);
+    hpsdr_dbg_printf(0, "global.emulation_id" " -> " "%d" "\n", confs->global.emulation_id);
 
-    PRINT_CONF_SIMPLEVAL(select_bands.enabled, "%d");
-    PRINT_CONF_SIMPLEVAL(select_bands.type, "%s");
-    PRINT_CONF_ARRAY(select_bands.gpio, "%d");
-    PRINT_CONF_ARRAY_WITHLABEL(select_bands.band_str, select_bands.data[0], "%s");
+    //PRINT_CONF_SIMPLEVAL(select_bands.enabled, "%d");
+    //PRINT_CONF_SIMPLEVAL(select_bands.type, "%s");
+    //PRINT_CONF_ARRAY(select_bands.gpio, "%d");
+    //PRINT_CONF_ARRAY_WITHLABEL(select_bands.band_str, select_bands.data[0], "%s");
 
 #undef PRINT_CONF_SIMPLEVAL
 #undef PRINT_CONF_ARRAY

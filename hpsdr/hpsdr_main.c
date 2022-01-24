@@ -123,7 +123,9 @@ int main(int argc, char *argv[]) {
 
 
     hpsdr_dbg_printf(0, "config file: %s\n", filename);
-    hpsdr_config_init(filename);
+    if (hpsdr_config_init(filename))
+        exit(1);
+
 
     if (confs->global.debug) {
         librpitx_dbg_setlevel(1);
@@ -186,8 +188,6 @@ int main(int argc, char *argv[]) {
             c2 = 0.090;
             break;
     }
-
-    hpsdr_dbg_printf(0, "iqburst: %d\n", confs->global.iqburst);
 
     tx_arg.iq_buffer = (float _Complex*) malloc(confs->global.iqburst * TXLEN * sizeof(float _Complex));
     tx_arg.iqsender = NULL;
