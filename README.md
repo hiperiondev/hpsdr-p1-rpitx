@@ -7,8 +7,8 @@ Transmitter with Raspberry PI over OpenHPSDR
  It was tested with Sdrangel and linhpsdr software on a Raspberry Pi Zero W and Raspberry Pi 4 up to 500Mhz.
 
 ### This program is BETA
-#### Problems:
-- ~~Some "glitches" at start of transmission~~ **NOW WORKING** (read Calibration)
-- ~~Sometimes "cracked" sound (may be lost packets or interupts problem)~~ **NOW WORKING** (read Calibration)
-- ~~Not work change frequency "on the fly"~~. **NOW WORKING**
-- ~~Change frequency with program launched some times crash Raspberry (maybe a librpitx problem)~~ **NOW WORKING**
+
+#### TODO:
+- Put all configures on config file
+- Add hardware LPF and HPF filters selector
+- Move librpitx to UIO driver
