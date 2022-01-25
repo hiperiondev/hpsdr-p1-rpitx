@@ -151,8 +151,11 @@ static int populate_config(IniDispatch *const disp, void *const v_confs) {
             if (ini_string_match_si("type", disp->data, disp->format)) {
                 set_new_string(&confs->filters.type, disp);
             }
-            if (ini_string_match_si("gpios", disp->data, disp->format)) {
-                set_new_intarray(&confs->filters.gpio, &confs->filters.gpio_length, disp, ',');
+            if (ini_string_match_si("gpio_pins_lpf", disp->data, disp->format)) {
+                set_new_intarray(&confs->filters.gpio_pins_lpf, &confs->filters.gpio_pins_lpf_length, disp, ',');
+            }
+            if (ini_string_match_si("gpio_pins_hpf", disp->data, disp->format)) {
+                set_new_intarray(&confs->filters.gpio_pins_hpf, &confs->filters.gpio_pins_hpf_length, disp, ',');
             }
         } else if (ini_array_match("global", disp->append_to, '.', disp->format)) {
             if (ini_string_match_si("debug", disp->data, disp->format)) {
@@ -231,7 +234,8 @@ int hpsdr_config_init(char *filename) {
 int hpsdr_config_deinit(void) {
     free(confs->global.emulation);
     free(confs->filters.type);
-    free(confs->filters.gpio);
+    free(confs->filters.gpio_pins_lpf);
+    free(confs->filters.gpio_pins_hpf);
     free(confs->filters.band_str);
     free(confs);
     return 0;

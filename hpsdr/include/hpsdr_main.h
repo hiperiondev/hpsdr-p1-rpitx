@@ -47,8 +47,10 @@ struct Configs_T {
     struct {
           bool enabled;
           char *type;
-           int *gpio;
-        size_t gpio_length;
+           int *gpio_pins_lpf;
+        size_t gpio_pins_lpf_length;
+           int *gpio_pins_hpf;
+        size_t gpio_pins_hpf_length;
           char **band_str;
            int *band_start;
            int *band_end;
