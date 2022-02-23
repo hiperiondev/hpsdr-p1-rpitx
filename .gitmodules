@@ -1,9 +1,3 @@
 [submodule "librpitx-C"]
 	path = librpitx-C
 	url = https://github.com/hiperiondev/librpitx-C.git
-[submodule "exceptions4c"]
-	path = exceptions4c
-	url = https://github.com/guillermocalvo/exceptions4c
-[submodule "libconfini"]
-	path = libconfini
-	url = https://github.com/madmurphy/libconfini.git

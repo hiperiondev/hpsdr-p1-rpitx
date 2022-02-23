@@ -55,7 +55,7 @@ void iqsender_init(uint64_t TuneFrequency) {
 
     float ppmpll = 0.0;
 
-    iqdmasync_init(&(tx_arg.iqsender), TuneFrequency, 48000, 14, confs->global.iqburst * 4, MODE_IQ);
+    iqdmasync_init(&(tx_arg.iqsender), TuneFrequency, 48000, 14, config.global.iqburst * 4, MODE_IQ);
     iqdmasync_set_ppm(&(tx_arg.iqsender), ppmpll);
 
     tx_init = true;
@@ -83,7 +83,7 @@ void iqsender_set(void) {
             return;
         }
 
-        hpsdr_dbg_printf(1, "Starting TX at Freq %ld (fifosize = %d)\n", settings.tx_freq, confs->global.iqburst * 4);
+        hpsdr_dbg_printf(1, "Starting TX at Freq %ld (fifosize = %d)\n", settings.tx_freq, config.global.iqburst * 4);
         iqsender_init(settings.tx_freq);
         last_freq = settings.tx_freq;
         hpsdr_dbg_printf(0, "FTX at %ld\n", settings.tx_freq);
@@ -106,7 +106,7 @@ void iqsender_set(void) {
 }
 
 void iqsender_clear_buffer(void) {
-    memset(tx_arg.iq_buffer, 0, confs->global.iqburst * TXLEN * sizeof(float _Complex));
+    memset(tx_arg.iq_buffer, 0, config.global.iqburst * TXLEN * sizeof(float _Complex));
 }
 
 void* iqsender_tx(void *data) {
@@ -124,8 +124,8 @@ void* iqsender_tx(void *data) {
             continue;
         }
 
-        buffer_offset = tx_block * confs->global.iqburst;
-        iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, confs->global.iqburst, Harmonic);
+        buffer_offset = tx_block * config.global.iqburst;
+        iqdmasync_set_iq_samples(&(tx_arg.iqsender), tx_arg.iq_buffer + buffer_offset, config.global.iqburst, Harmonic);
 
         ++tx_block;
         if (tx_block > TXLEN - 1)

@@ -8,11 +8,10 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include mxml/subdir.mk
 -include librpitx-C/librpitx/modulation/subdir.mk
 -include librpitx-C/librpitx/core/subdir.mk
--include libconfini/src/subdir.mk
 -include hpsdr/subdir.mk
--include exceptions4c/src/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -46,8 +45,8 @@ main-build: hpsdr_protocol1_rpitx
 # Tool invocations
 hpsdr_protocol1_rpitx: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
-	@echo 'Invoking: Cross GCC Linker'
-	gcc  -o "hpsdr_protocol1_rpitx" -fcommon $(OBJS) $(USER_OBJS) $(LIBS)
+	@echo 'Invoking: GCC Linker'
+	gcc  -o "hpsdr_protocol1_rpitx" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

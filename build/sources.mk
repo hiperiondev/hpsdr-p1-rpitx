@@ -13,9 +13,8 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-exceptions4c/src \
 hpsdr \
-libconfini/src \
 librpitx-C/librpitx/core \
 librpitx-C/librpitx/modulation \
+mxml \
 

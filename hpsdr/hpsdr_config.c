@@ -1,242 +1,386 @@
 /*
- * Copyright 2021 Emiliano Gonzalez LU3VEA (lu3vea @ gmail . com))
- * * Project Site: https://github.com/hiperiondev/hpsdr-p1-rpitx *
- *
- * This is based on other projects:
- *    librpitx (https://github.com/F5OEO/librpitx)
- *    HPSDR simulator (https://github.com/g0orx/pihpsdr)
- *
- *    please contact their authors for more information.
- *
- * This is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3, or (at your option)
- * any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
- *
+ ============================================================================
+ Name        : config_xml_test.c
+ Author      : LU3VEA - Emiliano Augusto Gonzalez - lu3vea@gmail.com
+ Version     :
+ Copyright   : GPL v.3
+ Description : Hello World in C, Ansi-style
+ ============================================================================
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <stdbool.h>
 
-#include "hpsdr_debug.h"
-#include "hpsdr_main.h"
+#include "mxml.h"
 #include "hpsdr_definitions.h"
-#include "confini.h"
+#include "hpsdr_main.h"
+#include "hpsdr_debug.h"
 
-char *devices[9] = {
-        "metis",
-        "hermes",
-        "griffin",
-        "angelia",
-        "orion",
-        "hermeslite",
-        "hermeslite2",
-        "orion2",
-        "c25"
-};
+char default_cfg[] = ""
+        "<config>\n"
+        "    <global>\n"
+        "        <debug>     true       </debug>\n"
+        "        <iqburst>   1000       </iqburst>\n"
+        "        <emulation> hermeslite </emulation>\n"
+        "    </global>\n"
+        "\n"
+        "    <filters>\n"
+        "        <enabled> false </enabled>\n"
+        "        <delay>   1     </delay>\n"
+        "        <type>    pin   </type>\n"
+        "    </filters>\n"
+        "\n"
+        "    <bands>\n"
+        "        <total> 16 </total>\n"
+        "        \n"
+        "        <name0>   2200m\n"
+        "            <lo>  135   </lo>\n"
+        "            <hi>  138   </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name0>\n"
+        "\n"
+        "        <name1>   630m\n"
+        "            <lo>  472   </lo>\n"
+        "            <hi>  479   </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name1>\n"
+        "\n"
+        "        <name2>   160m\n"
+        "            <lo>  1810  </lo>\n"
+        "            <hi>  2000  </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name2>\n"
+        "\n"
+        "        <name3>   80m\n"
+        "            <lo>  3500  </lo>\n"
+        "            <hi>  4000  </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name3>\n"
+        "\n"
+        "        <name4>   60m\n"
+        "            <lo>  5351  </lo>\n"
+        "            <hi>  5367  </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name4>\n"
+        "\n"
+        "        <name5>   40m\n"
+        "            <lo>  7000  </lo>\n"
+        "            <hi>  7300  </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name5>\n"
+        "\n"
+        "        <name6>   30m\n"
+        "            <lo>  10100 </lo>\n"
+        "            <hi>  10150 </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name6>\n"
+        "\n"
+        "        <name7>   20m\n"
+        "            <lo>  14000 </lo>\n"
+        "            <hi>  14350 </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name7>\n"
+        "\n"
+        "        <name8>   17m\n"
+        "            <lo>  18068 </lo>\n"
+        "            <hi>  18168 </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name8>\n"
+        "\n"
+        "        <name9>   15m\n"
+        "            <lo>  21000 </lo>\n"
+        "            <hi>  21450 </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name9>\n"
+        "\n"
+        "        <name10>  12m\n"
+        "            <lo>  24890 </lo>\n"
+        "            <hi>  24990 </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name10>\n"
+        "\n"
+        "        <name11>  10m\n"
+        "            <lo>  28000 </lo>\n"
+        "            <hi>  29700 </hi>\n"
+        "            <hpf> 0     </lpf>\n"
+        "            <lpf> 0     </hpf>\n"
+        "        </name11>\n"
+        "\n"
+        "        <name12>  6m\n"
+        "            <lo>  50000 </lo>\n"
+        "            <hi>  54000 </hi>\n"
+        "            <lpf> 0     </lpf>\n"
+        "            <hpf> 0     </hpf>\n"
+        "        </name12>\n"
+        "\n"
+        "        <name13>  2m\n"
+        "            <lo>  144000 </lo>\n"
+        "            <hi>  148000 </hi>\n"
+        "            <lpf> 0      </lpf>\n"
+        "            <hpf> 0      </hpf>\n"
+        "        </name13>\n"
+        "\n"
+        "        <name14>  1.25m\n"
+        "            <lo>  220000 </lo>\n"
+        "            <hi>  225000 </hi>\n"
+        "            <lpf> 0      </lpf>\n"
+        "            <hpf> 0      </hpf>\n"
+        "        </name14>\n"
+        "\n"
+        "        <name15>  70cm\n"
+        "            <lo>  430000 </lo>\n"
+        "            <hi>  440000 </hi>\n"
+        "            <lpf> 0      </lpf>\n"
+        "            <hpf> 0      </hpf>\n"
+        "        </name15>\n"
+        "    </bands>\n"
+        "\n"
+        "</config>\n";
+
+typedef enum {
+    STR2INT_SUCCESS,      //
+    STR2INT_OVERFLOW,     //
+    STR2INT_UNDERFLOW,    //
+    STR2INT_INCONVERTIBLE //
+} str2int_errno;
 
 int devices_id[9] = {
-    DEVICE_METIS,
-    DEVICE_HERMES,
-    DEVICE_GRIFFIN,
-    DEVICE_ANGELIA,
-    DEVICE_ORION,
-    DEVICE_HERMES_LITE,
-    DEVICE_HERMES_LITE2,
-    DEVICE_ORION2,
-    DEVICE_C25
-};
+        DEVICE_METIS,        //
+        DEVICE_HERMES,       //
+        DEVICE_GRIFFIN,      //
+        DEVICE_ANGELIA,      //
+        DEVICE_ORION,        //
+        DEVICE_HERMES_LITE,  //
+        DEVICE_HERMES_LITE2, //
+        DEVICE_ORION2,       //
+        DEVICE_C25           //
+        };
 
-#define CLEAN_MALLOC(DEST, SIZE, RETVAL) \
-    free(DEST); \
-    DEST = malloc(SIZE); \
-    if (!DEST) { \
-    	hpsdr_dbg_printf(0, "malloc() failed\n"); \
-        return RETVAL; \
-    }
+char *device_type[9] = {
+        "metis",       //
+        "hermes",      //
+        "griffin",     //
+        "angelia",     //
+        "orion",       //
+        "hermeslite",  //
+        "hermeslite2", //
+        "orion2",      //
+        "c25"          //
+        };
 
-#define hpsdh_config_format \
-    ((IniFormat) { \
-        .delimiter_symbol = INI_EQUALS, \
-        .case_sensitive = false, \
-        .semicolon_marker = INI_IGNORE, \
-        .hash_marker = INI_IGNORE, \
-        .section_paths = INI_ABSOLUTE_AND_RELATIVE, \
-        .multiline_nodes = INI_MULTILINE_EVERYWHERE, \
-        .no_single_quotes = false, \
-        .no_double_quotes = false, \
-        .no_spaces_in_names = false, \
-        .implicit_is_not_empty = true, \
-        .do_not_collapse_values = false, \
-        .preserve_empty_quotes = false, \
-        .disabled_after_space = false, \
-        .disabled_can_be_implicit = true \
-    })
+char *filter_type[3] = {
+        "pin",  //
+        "gpio", //
+        "i2c"   //
+        };
 
-int set_new_string(char **const dest_str, IniDispatch *const disp) {
-    disp->d_len = ini_string_parse(disp->value, disp->format);
-    CLEAN_MALLOC(*dest_str, disp->d_len, 1);
-    memcpy(*dest_str, disp->value, disp->d_len + 1);
-    return 0;
-}
-
-int set_new_strarray(char ***const dest_arr, size_t *const dest_len, const IniDispatch *const disp, const char delimiter) {
-    *dest_len = ini_array_get_length(disp->value, delimiter, disp->format);
-    CLEAN_MALLOC(*dest_arr, *dest_len * sizeof(char*) + disp->v_len + 1, 1);
-    size_t idx = 0;
-    char *token, *remnant = ((char*) *dest_arr) + (*dest_len + 1) * sizeof(char*);
-    memcpy(remnant, disp->value == INI_GLOBAL_IMPLICIT_VALUE && !INI_GLOBAL_IMPLICIT_VALUE ? "" : disp->value, disp->v_len + 1);
-    while ((token = ini_array_release(&remnant, delimiter, disp->format))) {
-        ini_string_parse(token, disp->format);
-        (*dest_arr)[idx++] = token;
-    }
-    return 0;
-}
-
-int set_new_intarray(int **const dest_arr, size_t *const dest_len, const IniDispatch *const disp, const char delimiter) {
-    *dest_len = ini_array_get_length(disp->value, delimiter, disp->format);
-    CLEAN_MALLOC(*dest_arr, *dest_len * sizeof(int), 1);
-    const char *shifted = disp->value;
-    size_t idx = 0;
-    while (shifted) {
-        (*dest_arr)[idx++] = ini_get_int(shifted);
-        ini_array_shift(&shifted, delimiter, disp->format);
-    }
-    return 0;
-}
-
-static int populate_config(IniDispatch *const disp, void *const v_confs) {
-#define confs ((struct Configs_T *) v_confs)
-    if (disp->type == INI_KEY) {
-        if (ini_array_match("select_bands", disp->append_to, '.', disp->format)) {
-            if (ini_string_match_si("bands", disp->data, disp->format)) {
-                const size_t arrlen = ini_array_get_length(disp->value, ',', disp->format);
-                char *remaining = disp->value;
-                if (arrlen > 0) {
-                    IniDispatch *dspclone = malloc(sizeof(IniDispatch));
-                    if (!dspclone) {
-                        hpsdr_dbg_printf(0, "malloc() failed\n");
-                        return 1;
-                    }
-                    memcpy(dspclone, disp, sizeof(IniDispatch));
-                    dspclone->value = ini_array_release(&remaining, ',', disp->format);
-                    dspclone->v_len = strlen(dspclone->value);
-                    set_new_strarray(&confs->filters.band_str, &confs->filters.band_str_length, dspclone, ':');
-                    if (arrlen > 1) {
-                        dspclone->value = ini_array_release(&remaining, ',', disp->format);
-                        dspclone->v_len = strlen(dspclone->value);
-                        set_new_intarray(&confs->filters.band_start, &confs->filters.band_start_length, dspclone, ':');
-                        set_new_intarray(&confs->filters.band_end, &confs->filters.band_end_length, dspclone, ':');
-                        set_new_intarray(&confs->filters.gpio_lpf, &confs->filters.gpio_lpf_length, dspclone, ':');
-                        set_new_intarray(&confs->filters.gpio_hpf, &confs->filters.gpio_hpf_length, dspclone, ':');
-                    }
-                    free(dspclone);
-                }
-            }
-            if (ini_string_match_si("enabled", disp->data, disp->format)) {
-                confs->filters.enabled = ini_get_bool(disp->value, 0);
-            }
-            if (ini_string_match_si("type", disp->data, disp->format)) {
-                set_new_string(&confs->filters.type, disp);
-            }
-            if (ini_string_match_si("gpio_pins_lpf", disp->data, disp->format)) {
-                set_new_intarray(&confs->filters.gpio_pins_lpf, &confs->filters.gpio_pins_lpf_length, disp, ',');
-            }
-            if (ini_string_match_si("gpio_pins_hpf", disp->data, disp->format)) {
-                set_new_intarray(&confs->filters.gpio_pins_hpf, &confs->filters.gpio_pins_hpf_length, disp, ',');
-            }
-        } else if (ini_array_match("global", disp->append_to, '.', disp->format)) {
-            if (ini_string_match_si("debug", disp->data, disp->format)) {
-                confs->global.debug = ini_get_bool(disp->value, 0);
-            }
-            if (ini_string_match_si("iqburst", disp->data, disp->format)) {
-                confs->global.iqburst = ini_get_int(disp->value);
-            }
-            if (ini_string_match_si("emulation", disp->data, disp->format)) {
-                set_new_string(&confs->global.emulation, disp);
-            }
+int get_device(char *name) {
+    int n;
+    for (int i = 0; i < strlen(name); i++)
+        name[i] = tolower(name[i]);
+    for (n = 0; n < 9; n++) {
+        if (strcmp(name, device_type[n]) == 0) {
+            return n;
         }
     }
+    return -1;
+}
 
-    bool emu = false;
-    if (confs->global.emulation) {
-        int l;
-        for (int n = 0; n < 9; n++) {
-            for (l = 0; l < strlen(confs->global.emulation); l++)
-                confs->global.emulation[l] = tolower(confs->global.emulation[l]);
-
-            if (!strcmp(confs->global.emulation, devices[n])) {
-                confs->global.emulation_id = devices_id[n];
-                emu = true;
-                break;
-            }
+int get_filter_type(char *name) {
+    int n;
+    for (int i = 0; i < strlen(name); i++)
+        name[i] = tolower(name[i]);
+    for (n = 0; n < 2; n++) {
+        if (strcmp(name, filter_type[n]) == 0) {
+            return n;
         }
     }
-    if (!emu)
-        confs->global.emulation_id = DEVICE_HERMES_LITE;
-
-    return 0;
-#undef confs
+    return -1;
 }
+
+int get_boolean(const char *string, bool *value) {
+    char *t[] = { "y", "Y", "yes", "Yes", "YES", "true", "True", "TRUE", "on", "On", "ON", NULL };
+    char *f[] = { "n", "N", "no", "No", "NO", "false", "False", "FALSE", "off", "Off", "OFF", NULL };
+    char **p;
+
+    for (p = t; *p; p++) {
+        if (strcmp(string, *p) == 0) {
+            *value = true;
+            return 0;
+        }
+    }
+    for (p = f; *p; p++) {
+        if (strcmp(string, *p) == 0) {
+            *value = false;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+char* ltrim(char *s) {
+    while (isspace(*s))
+        s++;
+    return s;
+}
+
+char* rtrim(char *s) {
+    char *back;
+    int len = strlen(s);
+
+    if (len == 0)
+        return (s);
+
+    back = s + len;
+    while (isspace(*--back))
+        ;
+    *(back + 1) = '\0';
+    return s;
+}
+
+char* trim(char *s) {
+    return rtrim(ltrim(s));
+}
+
+str2int_errno str2int(int *out, char *s, int base) {
+    char *end;
+    if (s[0] == '\0' || isspace(s[0]))
+        return STR2INT_INCONVERTIBLE;
+    errno = 0;
+    long l = strtol(s, &end, base);
+    /* Both checks are needed because INT_MAX == LONG_MAX is possible. */
+    if (l > INT_MAX || (errno == ERANGE && l == LONG_MAX))
+        return STR2INT_OVERFLOW;
+    if (l < INT_MIN || (errno == ERANGE && l == LONG_MIN))
+        return STR2INT_UNDERFLOW;
+    if (*end != '\0')
+        return STR2INT_INCONVERTIBLE;
+    *out = l;
+    return STR2INT_SUCCESS;
+}
+
+void print_config(Configs_T config) {
+    hpsdr_dbg_printf(0, "[CONFIGURATION]\n");
+    hpsdr_dbg_printf(0, "----------------------- global --------------------------\n");
+    hpsdr_dbg_printf(0, "    config.global.debug = %s\n", config.global.debug ? "true" : "false");
+    hpsdr_dbg_printf(0, "  config.global.iqburst = %d\n", config.global.iqburst);
+    hpsdr_dbg_printf(0, "config.global.emulation = %s\n", device_type[config.global.emulation]);
+    hpsdr_dbg_printf(0, "----------------------- filters -------------------------\n");
+    hpsdr_dbg_printf(0, " config.filters.enabled = %s\n", config.filters.enabled ? "true" : "false");
+    hpsdr_dbg_printf(0, "   config.filters.delay = %d\n", config.filters.delay);
+    hpsdr_dbg_printf(0, "    config.filters.type = %s\n", filter_type[config.filters.type]);
+    hpsdr_dbg_printf(0, "----------------------- bands ---------------------------\n");
+    for (int n = 0; n < config.bands_len; n++) {
+        hpsdr_dbg_printf(0, "----------------\n");
+        hpsdr_dbg_printf(0, "name: %s\n", config.bands[n]->name);
+        hpsdr_dbg_printf(0, "  lo: %d kHz\n", config.bands[n]->lo);
+        hpsdr_dbg_printf(0, "  hi: %d kHz\n", config.bands[n]->hi);
+        hpsdr_dbg_printf(0, " lpf: %d\n", config.bands[n]->lpf);
+        hpsdr_dbg_printf(0, " hpf: %d\n", config.bands[n]->hpf);
+    }
+    hpsdr_dbg_printf(0, "----------------\n");
+
+    hpsdr_dbg_printf(0, "[END CONFIGURATION]\n\n");
+    config.global.emulation = devices_id[config.global.emulation];
+}
+
+#define GET_STR(db, str)        trim(mxml_get(db, str))
+#define GET_INT(out, db, str)   { int err = str2int(&out, GET_STR(db, str), 10); \
+		                            if (err != STR2INT_SUCCESS) { \
+		                                hpsdr_dbg_printf(0, "ERROR:"); hpsdr_dbg_printf(0, str); hpsdr_dbg_printf(0, "= %s\n", GET_STR(db, str)); return 1;}}
+#define GET_BOOL(out, db, str)  { bool res; int err = get_boolean(GET_STR(db, str), &res); \
+		                            if (err != 0) { \
+		                                hpsdr_dbg_printf(0, "ERROR:"); hpsdr_dbg_printf(0, str); hpsdr_dbg_printf(0, "= %s\n", GET_STR(db, str)); return 1;} \
+		                            out = res; }
 
 int hpsdr_config_init(char *filename) {
-    confs = calloc(1, sizeof(struct Configs_T));
+    char *node, tmp[1024];
+    char *data = NULL;
+    size_t datalen;
+    struct mxml *db;
 
-    if (!confs) {
-        hpsdr_dbg_printf(0, "allocate confs failed\n");
+    config.bands_len = 0;
+
+    FILE *file = NULL;
+    file = fopen(filename, "rb");
+    if (file == NULL) {
+        hpsdr_dbg_printf(0, "error opening file\ncreating default config file: hpsdr_p1_rpitx.cfg\n");
+        file = fopen("hpsdr_p1_rpitx.cfg", "w+");
+        fprintf(file, default_cfg);
+        fclose(file);
+        file = fopen("hpsdr_p1_rpitx.cfg", "rb");
+    }
+
+    hpsdr_dbg_printf(0, "parsing config file\n");
+    getdelim(&data, &datalen, 0, file);
+    db = mxml_new(data, datalen);
+
+    // global
+    hpsdr_dbg_printf(0, "reading global\n");
+    GET_BOOL(config.global.debug, db, "config.global.debug");
+    GET_INT(config.global.iqburst, db, "config.global.iqburst");
+    config.global.emulation = get_device(GET_STR(db, "config.global.emulation"));
+    if (config.global.emulation == -1) {
+        hpsdr_dbg_printf(0, "ERROR: config.global.emulation = %s\n", GET_STR(db, "config.global.emulation"));
         return 1;
     }
-    if (load_ini_path(
-            filename,
-            hpsdh_config_format,
-            NULL,
-            populate_config,
-            confs
-            )
-        ) {
-        hpsdr_dbg_printf(0, "Sorry, something went wrong :-(\n");
+
+    // filters
+    hpsdr_dbg_printf(0, "reading filters\n");
+    GET_BOOL(config.filters.enabled, db, "config.filters.enabled");
+    GET_INT(config.filters.delay, db, "config.filters.delay");
+    config.filters.type = get_filter_type(GET_STR(db, "config.filters.type"));
+    if (config.filters.type == -1) {
+        hpsdr_dbg_printf(0, "ERROR:config.filters.type = %s\n", GET_STR(db, "config.filters.type"));
         return 1;
     }
 
-#define PRINT_CONF_ARRAY_WITHLABEL(PATH, LABEL, FORMAT) \
-        for (size_t idx = 0; idx < confs->PATH##_length; idx++) { \
-            if (confs->PATH) { hpsdr_dbg_printf(0, #LABEL "[%zu] -> " FORMAT "\n", idx, confs->PATH[idx]); } \
-        }
-#define PRINT_CONF_ARRAY(PATH, FORMAT) \
-        PRINT_CONF_ARRAY_WITHLABEL(PATH, PATH, FORMAT)
-#define PRINT_CONF_SIMPLEVAL(PATH, FORMAT) \
-        if (confs->PATH) { hpsdr_dbg_printf(0, #PATH " -> " FORMAT "\n", confs->PATH); }
+    // bands
+    hpsdr_dbg_printf(0, "reading bands\n");
+    GET_INT(config.bands_len, db, "config.bands.total");
+    config.bands = malloc(config.bands_len * sizeof(struct band*));
 
-    hpsdr_dbg_printf(0, "global.debug" " -> " "%d" "\n", confs->global.debug);
-    hpsdr_dbg_printf(0, "global.iqburst" " -> " "%d" "\n", confs->global.iqburst);
-    hpsdr_dbg_printf(0, "global.emulation" " -> " "%s" "\n", confs->global.emulation);
-    hpsdr_dbg_printf(0, "global.emulation_id" " -> " "%d" "\n", confs->global.emulation_id);
+    for (int n = 0; n < config.bands_len; n++) {
+        config.bands[n] = malloc(sizeof(struct band));
 
-#undef PRINT_CONF_SIMPLEVAL
-#undef PRINT_CONF_ARRAY
-#undef PRINT_CONF_ARRAY_WITHLABEL
+        sprintf(tmp, "config.bands.name%d", n);
+        node = GET_STR(db, tmp);
+        config.bands[n]->name = malloc((strlen(node) + 1) * sizeof(char));
+        strcpy(config.bands[n]->name, node);
 
-    return 0;
-}
+        sprintf(tmp, "config.bands.name%d.lo", n);
+        GET_INT(config.bands[n]->lo, db, tmp);
 
-int hpsdr_config_deinit(void) {
-    free(confs->global.emulation);
-    free(confs->filters.type);
-    free(confs->filters.gpio_pins_lpf);
-    free(confs->filters.gpio_pins_hpf);
-    free(confs->filters.band_str);
-    free(confs);
+        sprintf(tmp, "config.bands.name%d.hi", n);
+        GET_INT(config.bands[n]->hi, db, tmp);
+
+        sprintf(tmp, "config.bands.name%d.lpf", n);
+        GET_INT(config.bands[n]->lpf, db, tmp);
+
+        sprintf(tmp, "config.bands.name%d.hpf", n);
+        GET_INT(config.bands[n]->hpf, db, tmp);
+    }
+
+    print_config(config);
+
+    mxml_free(db);
+    free(data);
+
     return 0;
 }

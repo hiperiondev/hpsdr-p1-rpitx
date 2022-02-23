@@ -57,7 +57,6 @@ int device_emulation;
 int enable_thread;
 int active_thread;
 double c1, c2;
-//int iqburst = 1000;
 
 char exit_signal[33][17] = {
         "NOSIGNAL",
@@ -98,13 +97,12 @@ char exit_signal[33][17] = {
 static void terminate(int num) {
     fprintf(stderr, "Caught signal - Terminating 0x%x/%d(%s)\n", num, num, exit_signal[num]);
     iqsender_deinit();
-    hpsdr_config_deinit();
     exit(1);
 }
 
 int main(int argc, char *argv[]) {
     int i;
-    char filename[256] = "hpsdr_p1_rpitx.conf";
+    char filename[256] = "hpsdr_p1_rpitx.cfg";
 
     for (int i = 0; i < 64; i++) {
         struct sigaction sa;
@@ -127,12 +125,12 @@ int main(int argc, char *argv[]) {
         exit(1);
 
 
-    if (confs->global.debug) {
+    if (config.global.debug) {
         librpitx_dbg_setlevel(1);
         hpsdr_dbg_setlevel(1);
     }
 
-    switch (confs->global.emulation_id) {
+    switch (config.global.emulation) {
 
         case DEVICE_METIS:
             hpsdr_dbg_printf(1, "DEVICE is METIS\n");
@@ -189,7 +187,7 @@ int main(int argc, char *argv[]) {
             break;
     }
 
-    tx_arg.iq_buffer = (float _Complex*) malloc(confs->global.iqburst * TXLEN * sizeof(float _Complex));
+    tx_arg.iq_buffer = (float _Complex*) malloc(config.global.iqburst * TXLEN * sizeof(float _Complex));
     tx_arg.iqsender = NULL;
 
     pthread_create(&iqsender_tx_id, NULL, &iqsender_tx, (void*) &tx_arg);

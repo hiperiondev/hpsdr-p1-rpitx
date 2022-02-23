@@ -67,10 +67,10 @@ void samples_rcv(uint8_t *buffer) {
         dqsample = sampleq * 0.000030518509476;
         tx_arg.iq_buffer[tx_iq_ptr++] = disample + dqsample * I;
 
-        if (tx_iq_ptr > TXLEN * confs->global.iqburst)
+        if (tx_iq_ptr > TXLEN * config.global.iqburst)
             tx_iq_ptr = 0;
 
-        if ((tx_iq_ptr % confs->global.iqburst) == 0)
+        if ((tx_iq_ptr % config.global.iqburst) == 0)
             ++burst_cnt;
 
         if (j == 62)

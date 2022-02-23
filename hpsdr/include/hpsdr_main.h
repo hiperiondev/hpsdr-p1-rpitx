@@ -34,36 +34,38 @@
 #include <complex.h>
 
 #include "librpitx.h"
+#include "hpsdr_definitions.h"
 
 extern pthread_t iqsender_tx_id;
 
-struct Configs_T {
-    struct {
-        bool debug;
-         int iqburst;
-        char *emulation;
-         int emulation_id;
-    } global;
-    struct {
-          bool enabled;
-          char *type;
-           int *gpio_pins_lpf;
-        size_t gpio_pins_lpf_length;
-           int *gpio_pins_hpf;
-        size_t gpio_pins_hpf_length;
-          char **band_str;
-           int *band_start;
-           int *band_end;
-           int *gpio_lpf;
-           int *gpio_hpf;
-        size_t band_str_length;
-        size_t band_start_length;
-        size_t band_end_length;
-        size_t gpio_lpf_length;
-        size_t gpio_hpf_length;
-    } filters;
-};
-struct Configs_T *confs;
+typedef struct global {
+    bool debug;
+    int iqburst;
+    emulation_type_t emulation;
+} global_t;
+
+typedef struct filters {
+    bool enabled;
+    int delay;
+    filter_type_t type;
+} filters_t;
+
+typedef struct band {
+    char *name;
+    int lo;
+    int hi;
+    int lpf;
+    int hpf;
+} band_t;
+
+typedef struct Configs {
+    global_t global;
+    filters_t filters;
+    band_t **bands;
+    int bands_len;
+} Configs_T;
+
+Configs_T config;
 
 iqdmasync_t *iqsender;
 extern int enable_thread;
