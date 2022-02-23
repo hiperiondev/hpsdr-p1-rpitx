@@ -1,4 +1,3 @@
-
 /** Lightweight, in-memory XML parser */
 struct mxml;
 
@@ -17,7 +16,7 @@ struct mxml;
  * @returns a context structure. Free it with #mxml_close().
  * @retval NULL on error, sets #errno.
  */
-struct mxml *mxml_new(const char *base, unsigned int len);
+struct mxml* mxml_new(const char *base, unsigned int len);
 
 /**
  * Closes the XML file opened by #xml_open().
@@ -42,7 +41,7 @@ void mxml_free(struct mxml *m);
  * @retval NULL [ENOMEM] the key was too long
  * @retval NULL [ENOMEM] not enough memory to copy the value
  */
-char *mxml_get(struct mxml *m, const char *key);
+char* mxml_get(struct mxml *m, const char *key);
 
 /**
  * Tests if the tag described by the key exists.
@@ -109,7 +108,7 @@ int mxml_set(struct mxml *m, const char *key, const char *value);
  * @retval NULL [EINVAL] the key is malformed
  * @retval NULL [ENOENT] the key is malformed
  */
-char *mxml_expand_key(struct mxml *m, const char *key);
+char* mxml_expand_key(struct mxml *m, const char *key);
 
 /**
  * Writes out an XML document with edits.
@@ -119,9 +118,7 @@ char *mxml_expand_key(struct mxml *m, const char *key);
  * @returns the sum of the return values from @a writefn.
  * @retval -1 if @a writefn returned -1
  */
-int mxml_write(const struct mxml *m,
-	int (*writefn)(void *context, const char *text, unsigned int len),
-	void *context);
+int mxml_write(const struct mxml *m, int (*writefn)(void *context, const char *text, unsigned int len), void *context);
 
 /**
  * Extract a list of all the keys in the document.
@@ -134,7 +131,7 @@ int mxml_write(const struct mxml *m,
  *          The array and each string should be released with #free().
  * @retval NULL [ENOMEM] could not allocate memory
  */
-char **mxml_keys(const struct mxml *m, unsigned int *nkeys_return);
+char** mxml_keys(const struct mxml *m, unsigned int *nkeys_return);
 
 /**
  * Frees keys returned by #mxml_keys().

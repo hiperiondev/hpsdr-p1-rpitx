@@ -38,6 +38,8 @@
 
 extern pthread_t iqsender_tx_id;
 
+extern int band;
+
 typedef struct global {
     bool debug;
     int iqburst;

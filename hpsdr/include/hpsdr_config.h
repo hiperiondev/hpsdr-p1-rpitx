@@ -29,5 +29,6 @@
 #define HPSDR_CONFIG_H_
 
 int hpsdr_config_init(char *filename);
+int hpsdr_config_get_band(double freq);
 
 #endif /* HPSDR_CONFIG_H_ */
