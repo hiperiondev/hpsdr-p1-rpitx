@@ -87,7 +87,7 @@ void iqsender_set(void) {
 
         band = hpsdr_config_get_band(settings.tx_freq);
         hpsdr_dbg_printf(1, "Starting TX at Freq %ld (fifosize = %d)\n", settings.tx_freq, config.global.iqburst * 4);
-        hpsdr_dbg_printf(1, "Band: %s\n", band == -1?"out of band":config.bands[band]->name);
+        hpsdr_dbg_printf(1, "Band: %s\n", band == -1?"out of band":config.bands[band].name);
         iqsender_init(settings.tx_freq);
         last_freq = settings.tx_freq;
         hpsdr_dbg_printf(0, "FTX at %ld\n", settings.tx_freq);
@@ -102,7 +102,7 @@ void iqsender_set(void) {
 
         band = hpsdr_config_get_band(settings.tx_freq);
         hpsdr_dbg_printf(0, "Changing TX frequency\n");
-        hpsdr_dbg_printf(1, "Band: %s\n", band == -1?"out of band":config.bands[band]->name);
+        hpsdr_dbg_printf(1, "Band: %s\n", band == -1?"out of band":config.bands[band].name);
         iqsender_deinit();
         iqsender_init(settings.tx_freq);
 

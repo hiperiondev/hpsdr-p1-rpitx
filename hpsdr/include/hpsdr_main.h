@@ -36,6 +36,8 @@
 #include "librpitx.h"
 #include "hpsdr_definitions.h"
 
+#define MAXBANDS 30
+
 extern pthread_t iqsender_tx_id;
 
 extern int band;
@@ -53,7 +55,7 @@ typedef struct filters {
 } filters_t;
 
 typedef struct band {
-    char *name;
+    char name[64];
     int lo;
     int hi;
     int lpf;
@@ -63,7 +65,7 @@ typedef struct band {
 typedef struct hpsdr_config {
     global_t global;
     filters_t filters;
-    band_t **bands;
+    band_t bands[MAXBANDS];
     int bands_len;
 } hpsdr_config_t;
 

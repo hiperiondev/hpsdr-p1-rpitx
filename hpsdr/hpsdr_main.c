@@ -98,7 +98,6 @@ char exit_signal[33][17] = {
 static void terminate(int num) {
     fprintf(stderr, "Caught signal - Terminating 0x%x/%d(%s)\n", num, num, exit_signal[num]);
     iqsender_deinit();
-    hpsdr_config_deinit();
     exit(1);
 }
 
@@ -125,9 +124,6 @@ int main(int argc, char *argv[]) {
 
     if (hpsdr_config_init(filename))
         exit(1);
-
-    if (config.bands[0] == NULL)
-        hpsdr_dbg_printf(0, "ERROR: config.bands[0] == NULL\n");
 
     if (config.global.debug) {
         librpitx_dbg_setlevel(1);

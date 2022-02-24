@@ -25,6 +25,7 @@
  *
  */
 
+#define __STDC_WANT_LIB_EXT1__ 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -282,7 +283,7 @@ static str2int_errno str2int(int *out, char *s, int base) {
         return STR2INT_INCONVERTIBLE;
     errno = 0;
     long l = strtol(s, &end, base);
-    /* Both checks are needed because INT_MAX == LONG_MAX is possible. */
+    // Both checks are needed because INT_MAX == LONG_MAX is possible
     if (l > INT_MAX || (errno == ERANGE && l == LONG_MAX))
         return STR2INT_OVERFLOW;
     if (l < INT_MIN || (errno == ERANGE && l == LONG_MIN))
@@ -306,11 +307,11 @@ static void print_config(hpsdr_config_t config) {
     hpsdr_dbg_printf(0, "----------------------- bands ---------------------------\n");
     for (int n = 0; n < config.bands_len; n++) {
         hpsdr_dbg_printf(0, "--------[%02d]--------\n", n);
-        hpsdr_dbg_printf(0, "name: %s\n", config.bands[n]->name);
-        hpsdr_dbg_printf(0, "  lo: %d kHz\n", config.bands[n]->lo);
-        hpsdr_dbg_printf(0, "  hi: %d kHz\n", config.bands[n]->hi);
-        hpsdr_dbg_printf(0, " lpf: %d\n", config.bands[n]->lpf);
-        hpsdr_dbg_printf(0, " hpf: %d\n", config.bands[n]->hpf);
+        hpsdr_dbg_printf(0, "name: %s\n", config.bands[n].name);
+        hpsdr_dbg_printf(0, "  lo: %d kHz\n", config.bands[n].lo);
+        hpsdr_dbg_printf(0, "  hi: %d kHz\n", config.bands[n].hi);
+        hpsdr_dbg_printf(0, " lpf: %d\n", config.bands[n].lpf);
+        hpsdr_dbg_printf(0, " hpf: %d\n", config.bands[n].hpf);
     }
     hpsdr_dbg_printf(0, "----------------\n");
 
@@ -366,34 +367,36 @@ int hpsdr_config_init(char *filename) {
     GET_INT(config.filters.delay, db, "config.filters.delay");
     config.filters.type = get_filter_type(GET_STR(db, "config.filters.type"));
     if (config.filters.type == -1) {
-        hpsdr_dbg_printf(0, "ERROR:config.filters.type = %s\n", GET_STR(db, "config.filters.type"));
+        hpsdr_dbg_printf(0, "ERROR: config.filters.type = %s\n", GET_STR(db, "config.filters.type"));
         return 1;
     }
 
     // bands
     hpsdr_dbg_printf(0, "reading bands\n");
     GET_INT(config.bands_len, db, "config.bands.total");
-    config.bands = malloc(config.bands_len * sizeof(struct band*));
+    if(config.bands_len > MAXBANDS) {
+        hpsdr_dbg_printf(0, "ERROR: too many bands. allowed: %d\n", MAXBANDS);
+        return 1;
+    }
 
     for (int n = 0; n < config.bands_len; n++) {
-        config.bands[n] = malloc(sizeof(struct band));
 
         sprintf(tmp, "config.bands.name%d", n);
         node = GET_STR(db, tmp);
-        config.bands[n]->name = malloc((strlen(node) + 1) * sizeof(char));
-        strcpy(config.bands[n]->name, node);
+        strcpy(config.bands[n].name, node);
+        config.bands[n].name[63] = '\0';
 
         sprintf(tmp, "config.bands.name%d.lo", n);
-        GET_INT(config.bands[n]->lo, db, tmp);
+        GET_INT(config.bands[n].lo, db, tmp);
 
         sprintf(tmp, "config.bands.name%d.hi", n);
-        GET_INT(config.bands[n]->hi, db, tmp);
+        GET_INT(config.bands[n].hi, db, tmp);
 
         sprintf(tmp, "config.bands.name%d.lpf", n);
-        GET_INT(config.bands[n]->lpf, db, tmp);
+        GET_INT(config.bands[n].lpf, db, tmp);
 
         sprintf(tmp, "config.bands.name%d.hpf", n);
-        GET_INT(config.bands[n]->hpf, db, tmp);
+        GET_INT(config.bands[n].hpf, db, tmp);
     }
 
     print_config(config);
@@ -405,21 +408,10 @@ int hpsdr_config_init(char *filename) {
     return 0;
 }
 
-void hpsdr_config_deinit(void) {
-    for (int n = 0; n < config.bands_len; n++) {
-        free (config.bands[n]->name);
-        free (config.bands[n]);
-    }
-}
-
 int hpsdr_config_get_band(double freq) {
     int freq_khz = freq / 1000;
     for (int n = 0; n < config.bands_len; n++) {
-        if (config.bands[n] == NULL) {
-            hpsdr_dbg_printf(0, "ERROR: config.bands[%d] == NULL\n", n);
-            return -1;
-        }
-        if (freq_khz >= config.bands[n]->lo && freq_khz <= config.bands[n]->hi)
+        if (freq_khz >= config.bands[n].lo && freq_khz <= config.bands[n].hi)
             return n;
     }
     return -1;
