@@ -244,7 +244,7 @@ int mxml_delete(struct mxml *m, const char *key) {
             errno = ENOMEM;
             return -1;
         }
-        memcpy(ekey + i, "total", 5);
+        memcpy_s(ekey + i, KEY_MAX -i, "total", 5);
         ekeylen = i + 5;
 
         content = find_key(m, ekey, ekeylen, &contentsz);

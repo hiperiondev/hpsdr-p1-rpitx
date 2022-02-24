@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "mxml_int.h"
+#include "mxml_mem.h"
 
 #if HAVE_CACHE
 void cache_init(struct mxml *m) {
@@ -32,7 +33,7 @@ void cache_set(struct mxml *m, const char *ekey, int ekeylen, const char *data, 
     if (ekeylen <= KEY_MAX) {
         cache = &m->cache[m->cache_next];
         cache->keylen = ekeylen;
-        memcpy(cache->key, ekey, ekeylen);
+        memcpy_s(cache->key, KEY_MAX, ekey, ekeylen);
         cache->data = data;
         cache->size = size;
         /* simple round robin cache eviction */

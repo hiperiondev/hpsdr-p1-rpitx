@@ -13,4 +13,7 @@ void* _mxml_calloc(size_t count, size_t size);
 void _mxml_free(void *ptr);
 void _mxml_free_all(void);
 
+int memcpy_s(void *dst, size_t sizeInBytes, const void *src, size_t count);
+int memmove_s(void *dst, size_t sizeInBytes, const void *src, size_t count);
+
 #endif /* MXML_MEM_H_ */

@@ -184,7 +184,7 @@ static int xml_tokenize(struct xmlstate *x) {
         token->type = TOK_VALUE;
         cursor_skip_content(c);
         token->valuelen = c->pos - token->value;
-        memcpy(token->key, x->key, x->keylen);
+        memcpy_s(token->key, KEY_MAX, x->key, x->keylen);
         token->keylen = x->keylen;
         x->init = 1;
         return 0;
@@ -218,11 +218,11 @@ static int xml_tokenize(struct xmlstate *x) {
 #endif
         if (x->keylen)
             x->key[x->keylen++] = '.';
-        memcpy(&x->key[x->keylen], tag, taglen);
+        memcpy_s(&x->key[x->keylen], KEY_MAX, tag, taglen);
         x->keylen += taglen;
     }
 
-    memcpy(token->key, x->key, x->keylen);
+    memcpy_s(token->key, KEY_MAX, x->key, x->keylen);
     token->keylen = x->keylen;
 
     if (token->type == TOK_CLOSE) {
@@ -316,7 +316,7 @@ static int process_append(struct appendstate *app, struct token **carrier) {
         app->held_token = token;
         app->tagdata[1] = '<';
         newtok->type = TOK_OPEN;
-        memcpy(app->sent_token.key, app->key, app->sent_token.keylen = app->keylen);
+        memcpy_s(app->sent_token.key, KEY_MAX, app->key, app->sent_token.keylen = app->keylen);
         newtok->value = &app->tagdata[1];
         newtok->valuelen = strlen(newtok->value);
         *carrier = newtok;
