@@ -33,7 +33,6 @@
 #include <netinet/tcp.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <hpsdr_protocol.h>
 #include <unistd.h>
 #include <pthread.h>
 
@@ -44,6 +43,7 @@
 #include "hpsdr_ep2.h"
 #include "hpsdr_ep6.h"
 #include "hpsdr_tx_samples.h"
+#include "hpsdr_protocol.h"
 
          pthread_t op_handler_ep6_id;
                int sock_TCP_Server;

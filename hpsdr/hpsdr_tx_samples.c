@@ -25,7 +25,6 @@
  *
  */
 
-#include <hpsdr_protocol.h>
 #include <stdint.h>
 #include <time.h>
 #include <string.h>
@@ -37,6 +36,7 @@
 #include "hpsdr_functions.h"
 #include "hpsdr_debug.h"
 #include "librpitx.h"
+#include "hpsdr_protocol.h"
 
 uint8_t *bp;
 int j;

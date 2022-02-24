@@ -25,7 +25,7 @@
  *
  */
 
-#include <hpsdr_protocol.h>
+
 #include <stdint.h>
 #include <math.h>
 
@@ -34,6 +34,7 @@
 #include "hpsdr_functions.h"
 #include "hpsdr_ep2.h"
 #include "hpsdr_main.h"
+#include "hpsdr_protocol.h"
 
 // floating-point represents of tx att, rx att, and rx preamp settings
 double txatt_dbl = 1.0;

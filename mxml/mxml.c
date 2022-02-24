@@ -5,6 +5,7 @@
 
 #include "mxml.h"
 #include "mxml_int.h"
+#include "mxml_mem.h"
 
 /* The space needed to hold UINT_MAX in base 10.
  * Used for buffer size calculations.
@@ -60,7 +61,7 @@ static size_t unencode_xml_into(const struct cursor *init_curs, char *out) {
 /**
  * Unencodes XML into a new string.
  * Expands the XML entities, (&lt; &gt; &amp;)
- * @returns NUL-terminated string allocated by #malloc.
+ * @returns NUL-terminated string allocated by #_mxml_malloc.
  * @retval NULL [ENOMEM] could not allocate memory.
  */
 static char* unencode_xml(const char *content, size_t contentsz) {
@@ -71,7 +72,7 @@ static char* unencode_xml(const char *content, size_t contentsz) {
     c.pos = content;
     c.end = content + contentsz;
     retsz = unencode_xml_into(&c, NULL);
-    ret = malloc(retsz + 1);
+    ret = _mxml_malloc(retsz + 1);
     if (ret) {
         unencode_xml_into(&c, ret);
         ret[retsz] = '\0';
@@ -90,11 +91,11 @@ static char* value_strdup(const char *s) {
 
 static void value_free(char *value) {
     if (value != value_empty)
-        free(value);
+        _mxml_free(value);
 }
 
 struct mxml* mxml_new(const char *start, unsigned int size) {
-    struct mxml *m = malloc(sizeof *m);
+    struct mxml *m = _mxml_malloc(sizeof *m);
 
     if (!m)
         return NULL;
@@ -114,11 +115,11 @@ void mxml_free(struct mxml *m) {
         return;
     while ((e = m->edits)) {
         m->edits = e->next;
-        free(e->key);
+        _mxml_free(e->key);
         value_free(e->value);
-        free(e);
+        _mxml_free(e);
     }
-    free(m);
+    _mxml_free(m);
 }
 
 static const char* find_expand_key(struct mxml *m, const char *key, size_t *size_return) {
@@ -151,18 +152,18 @@ char* mxml_get(struct mxml *m, const char *key) {
  * @retval NULL [ENOMEM] no memory
  */
 static struct edit* edit_new(struct mxml *m, enum edit_op op, const char *ekey, int ekeylen, const char *value) {
-    struct edit *e = calloc(1, sizeof *e);
+    struct edit *e = _mxml_calloc(1, sizeof *e);
     if (!e)
         return NULL;
     e->key = strndup(ekey, ekeylen);
     if (!e->key) {
-        free(e);
+        _mxml_free(e);
         return NULL;
     }
     e->value = value_strdup(value);
     if (!e->value) {
-        free(e->key);
-        free(e);
+        _mxml_free(e->key);
+        _mxml_free(e);
         return NULL;
     }
     e->op = op;
@@ -366,7 +367,7 @@ int mxml_append(struct mxml *m, const char *key, const char *value) {
         snprintf(newtotal, sizeof newtotal, "%u", total + 1);
         edit = edit_new(m, tcontent ? EDIT_SET : EDIT_APPEND, etkey, etkeylen, newtotal);
 
-        free(tkey);
+        _mxml_free(tkey);
     }
 
     edit = edit_new(m, EDIT_APPEND, ekey, ekeylen, value);
@@ -410,7 +411,7 @@ char* mxml_expand_key(struct mxml *m, const char *key) {
         content = find_expand_key(m, tkey, &contentsz);
         if (!content || parse_uint(content, contentsz, &total) < 0)
             total = 0;
-        free(tkey);
+        _mxml_free(tkey);
 
         n = snprintf(&outbuf[outlen], sizeof outbuf - outlen, "%.*s[%u]", (int) (brack - first), first, total);
         outlen += n;

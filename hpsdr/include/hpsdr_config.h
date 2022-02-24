@@ -25,10 +25,11 @@
  *
  */
 
-#ifndef HPSDR_CONFIG_H_
-#define HPSDR_CONFIG_H_
+#ifndef HPSDR_CONFIG2_H_
+#define HPSDR_CONFIG2_H_
 
 int hpsdr_config_init(char *filename);
+void hpsdr_config_deinit(void);
 int hpsdr_config_get_band(double freq);
 
 #endif /* HPSDR_CONFIG_H_ */

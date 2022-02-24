@@ -6,6 +6,7 @@
 
 #include "mxml.h"
 #include "mxml_int.h"
+#include "mxml_mem.h"
 
 /* #define DEBUG 1 */
 
@@ -100,7 +101,7 @@ static unsigned int parent_len(const char *key, unsigned int keylen) {
 /**
  * Creates an edit state array from match m->edits.
  * @param n_return storage for the length of the array returned.
- * @returns new array; caller should #free() it eventually.
+ * @returns new array; caller should #_mxml_free() it eventually.
  */
 static struct editstate* make_editstates(const struct mxml *m, unsigned int *n_return) {
     unsigned int n = 0;
@@ -110,7 +111,7 @@ static struct editstate* make_editstates(const struct mxml *m, unsigned int *n_r
     n = 2;
     for (edit = m->edits; edit; edit = edit->next)
         n++;
-    states = calloc(n, sizeof *states);
+    states = _mxml_calloc(n, sizeof *states);
     if (!states)
         goto nomem;
 
@@ -157,7 +158,7 @@ static struct editstate* make_editstates(const struct mxml *m, unsigned int *n_r
 
     *n_return = n;
     return states;
-    nomem: free(states);
+    nomem: _mxml_free(states);
     errno = ENOMEM;
     return NULL;
 }
@@ -497,7 +498,7 @@ int flatten_edits(const struct mxml *m, int (*fn)(void *context, const struct to
         else
             curstate = NULL; /* Fell off the bottom */
     }
-    free(states);
+    _mxml_free(states);
 #ifdef DEBUG
 	fprintf(stderr, " EOF: return %d\n", ret);
 #endif

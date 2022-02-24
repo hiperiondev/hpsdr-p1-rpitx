@@ -41,13 +41,13 @@
 
 #define Harmonic 1
 
+         int band;
         bool tx_init = false;
         bool sender_init = false;
         bool tx_sending = false;
 unsigned int tx_block = 0;
  static long last_freq = 0;
    pthread_t iqsender_tx_id;
-         int band = -1;
 
 void iqsender_init(uint64_t TuneFrequency) {
     if (sender_init || (TuneFrequency < 1000)) {
@@ -70,8 +70,6 @@ void iqsender_deinit(void) {
         hpsdr_dbg_printf(0, "iqsender_deinit\n");
         tx_init = false;
         usleep(50000);
-        if (tx_arg.iqsender != NULL)
-            hpsdr_dbg_printf(0, "WARNING!! iqsender != NULL\n");
         iqdmasync_deinit(&(tx_arg.iqsender));
     } else {
         hpsdr_dbg_printf(0, "ERROR: iqsender NULL\n");
@@ -88,7 +86,6 @@ void iqsender_set(void) {
         }
 
         band = hpsdr_config_get_band(settings.tx_freq);
-
         hpsdr_dbg_printf(1, "Starting TX at Freq %ld (fifosize = %d)\n", settings.tx_freq, config.global.iqburst * 4);
         hpsdr_dbg_printf(1, "Band: %s\n", band == -1?"out of band":config.bands[band]->name);
         iqsender_init(settings.tx_freq);
@@ -129,8 +126,7 @@ void* iqsender_tx(void *data) {
 
     while (1) {
         if (tx_arg.iqsender == NULL || !tx_init) {
-            usleep(1000);
-            printf(".");
+            usleep(100);
             continue;
         }
 

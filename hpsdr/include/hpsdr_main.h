@@ -60,14 +60,14 @@ typedef struct band {
     int hpf;
 } band_t;
 
-typedef struct Configs {
+typedef struct hpsdr_config {
     global_t global;
     filters_t filters;
     band_t **bands;
     int bands_len;
-} Configs_T;
+} hpsdr_config_t;
 
-Configs_T config;
+extern hpsdr_config_t config;
 
 iqdmasync_t *iqsender;
 extern int enable_thread;

@@ -34,11 +34,12 @@
 #include <stdbool.h>
 
 #include "mxml.h"
+#include "mxml_mem.h"
 #include "hpsdr_definitions.h"
 #include "hpsdr_main.h"
 #include "hpsdr_debug.h"
 
-char default_cfg[] = ""
+static char default_cfg[] = ""
         "<config>\n"
         "    <global>\n"
         "        <debug>     true       </debug>\n"
@@ -177,7 +178,7 @@ typedef enum {
     STR2INT_INCONVERTIBLE //
 } str2int_errno;
 
-int devices_id[9] = {
+static int devices_id[9] = {
         DEVICE_METIS,        //
         DEVICE_HERMES,       //
         DEVICE_GRIFFIN,      //
@@ -189,7 +190,7 @@ int devices_id[9] = {
         DEVICE_C25           //
         };
 
-char *device_type[9] = {
+static char *device_type[9] = {
         "metis",       //
         "hermes",      //
         "griffin",     //
@@ -201,13 +202,13 @@ char *device_type[9] = {
         "c25"          //
         };
 
-char *filter_type[3] = {
+static char *filter_type[3] = {
         "pin",  //
         "gpio", //
         "i2c"   //
         };
 
-int get_device(char *name) {
+static int get_device(char *name) {
     int n;
     for (int i = 0; i < strlen(name); i++)
         name[i] = tolower(name[i]);
@@ -219,7 +220,7 @@ int get_device(char *name) {
     return -1;
 }
 
-int get_filter_type(char *name) {
+static int get_filter_type(char *name) {
     int n;
     for (int i = 0; i < strlen(name); i++)
         name[i] = tolower(name[i]);
@@ -231,7 +232,7 @@ int get_filter_type(char *name) {
     return -1;
 }
 
-int get_boolean(const char *string, bool *value) {
+static int get_boolean(const char *string, bool *value) {
     char *t[] = { "y", "Y", "yes", "Yes", "YES", "true", "True", "TRUE", "on", "On", "ON", NULL };
     char *f[] = { "n", "N", "no", "No", "NO", "false", "False", "FALSE", "off", "Off", "OFF", NULL };
     char **p;
@@ -251,13 +252,13 @@ int get_boolean(const char *string, bool *value) {
     return -1;
 }
 
-char* ltrim(char *s) {
+static char* ltrim(char *s) {
     while (isspace(*s))
         s++;
     return s;
 }
 
-char* rtrim(char *s) {
+static char* rtrim(char *s) {
     char *back;
     int len = strlen(s);
 
@@ -271,11 +272,11 @@ char* rtrim(char *s) {
     return s;
 }
 
-char* trim(char *s) {
+static char* trim(char *s) {
     return rtrim(ltrim(s));
 }
 
-str2int_errno str2int(int *out, char *s, int base) {
+static str2int_errno str2int(int *out, char *s, int base) {
     char *end;
     if (s[0] == '\0' || isspace(s[0]))
         return STR2INT_INCONVERTIBLE;
@@ -292,7 +293,7 @@ str2int_errno str2int(int *out, char *s, int base) {
     return STR2INT_SUCCESS;
 }
 
-void print_config(Configs_T config) {
+static void print_config(hpsdr_config_t config) {
     hpsdr_dbg_printf(0, "[CONFIGURATION]\n");
     hpsdr_dbg_printf(0, "----------------------- global --------------------------\n");
     hpsdr_dbg_printf(0, "    config.global.debug = %s\n", config.global.debug ? "true" : "false");
@@ -304,7 +305,7 @@ void print_config(Configs_T config) {
     hpsdr_dbg_printf(0, "    config.filters.type = %s\n", filter_type[config.filters.type]);
     hpsdr_dbg_printf(0, "----------------------- bands ---------------------------\n");
     for (int n = 0; n < config.bands_len; n++) {
-        hpsdr_dbg_printf(0, "----------------\n");
+        hpsdr_dbg_printf(0, "--------[%02d]--------\n", n);
         hpsdr_dbg_printf(0, "name: %s\n", config.bands[n]->name);
         hpsdr_dbg_printf(0, "  lo: %d kHz\n", config.bands[n]->lo);
         hpsdr_dbg_printf(0, "  hi: %d kHz\n", config.bands[n]->hi);
@@ -335,6 +336,7 @@ int hpsdr_config_init(char *filename) {
     config.bands_len = 0;
 
     FILE *file = NULL;
+
     file = fopen(filename, "rb");
     if (file == NULL) {
         hpsdr_dbg_printf(0, "error opening file\ncreating default config file: hpsdr_p1_rpitx.cfg\n");
@@ -396,15 +398,27 @@ int hpsdr_config_init(char *filename) {
 
     print_config(config);
 
-    mxml_free(db);
+    _mxml_free(db);
     free(data);
+    _mxml_free_all();
 
     return 0;
+}
+
+void hpsdr_config_deinit(void) {
+    for (int n = 0; n < config.bands_len; n++) {
+        free (config.bands[n]->name);
+        free (config.bands[n]);
+    }
 }
 
 int hpsdr_config_get_band(double freq) {
     int freq_khz = freq / 1000;
     for (int n = 0; n < config.bands_len; n++) {
+        if (config.bands[n] == NULL) {
+            hpsdr_dbg_printf(0, "ERROR: config.bands[%d] == NULL\n", n);
+            return -1;
+        }
         if (freq_khz >= config.bands[n]->lo && freq_khz <= config.bands[n]->hi)
             return n;
     }

@@ -57,6 +57,7 @@ int device_emulation;
 int enable_thread;
 int active_thread;
 double c1, c2;
+hpsdr_config_t config;
 
 char exit_signal[33][17] = {
         "NOSIGNAL",
@@ -97,12 +98,13 @@ char exit_signal[33][17] = {
 static void terminate(int num) {
     fprintf(stderr, "Caught signal - Terminating 0x%x/%d(%s)\n", num, num, exit_signal[num]);
     iqsender_deinit();
+    hpsdr_config_deinit();
     exit(1);
 }
 
 int main(int argc, char *argv[]) {
     int i;
-    char filename[256] = "hpsdr_p1_rpitx.cfg";
+    char filename[256] = "hpsdr_p1_rpitx.conf";
 
     for (int i = 0; i < 64; i++) {
         struct sigaction sa;
@@ -119,11 +121,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
     hpsdr_dbg_printf(0, "config file: %s\n", filename);
+
     if (hpsdr_config_init(filename))
         exit(1);
 
+    if (config.bands[0] == NULL)
+        hpsdr_dbg_printf(0, "ERROR: config.bands[0] == NULL\n");
 
     if (config.global.debug) {
         librpitx_dbg_setlevel(1);

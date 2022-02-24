@@ -2,6 +2,7 @@
 
 #include "mxml.h"
 #include "mxml_int.h"
+#include "mxml_mem.h"
 
 struct keys_context {
     char **keys;
@@ -18,7 +19,7 @@ static int keys_token(void *context, const struct token *token) {
             return -1;
         keys = realloc(c->keys, (c->nkeys + 1) * sizeof *keys);
         if (!keys) {
-            free(key);
+            _mxml_free(key);
             return -1;
         }
         c->keys = keys;
@@ -33,18 +34,18 @@ char** mxml_keys(const struct mxml *m, unsigned int *nkeys_return) {
     c.keys = NULL;
     c.nkeys = 0;
     if (flatten_edits(m, keys_token, &c) == -1) {
-        mxml_free_keys(c.keys, c.nkeys);
+        mxml__mxml_free_keys(c.keys, c.nkeys);
         *nkeys_return = 0;
         return NULL;
     }
     *nkeys_return = c.nkeys;
-    return c.keys ? c.keys : malloc(1);
+    return c.keys ? c.keys : _mxml_malloc(1);
 }
 
-void mxml_free_keys(char **keys, unsigned int nkeys) {
+void mxml__mxml_free_keys(char **keys, unsigned int nkeys) {
     unsigned int i;
 
     for (i = 0; i < nkeys; i++)
-        free(keys[i]);
-    free(keys);
+        _mxml_free(keys[i]);
+    _mxml_free(keys);
 }
