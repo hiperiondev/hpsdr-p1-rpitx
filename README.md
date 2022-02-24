@@ -1,10 +1,5 @@
 # hpsdr-p1-rpitx
 
-### ----------------------------------------------------------------------- ###
-###                           !!!!!!!WARNING!!!!!!!!                        ###
-### Due to important changes in the project it might not work at the moment ###
-### ----------------------------------------------------------------------- ###
-
 Transmitter with Raspberry PI over OpenHPSDR
 
 ### Please read the documentation on the wiki: https://github.com/hiperiondev/hpsdr-p1-rpitx/wiki 
