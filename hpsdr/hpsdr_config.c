@@ -40,6 +40,7 @@
 #include "hpsdr_main.h"
 #include "hpsdr_debug.h"
 
+int emu;
 static char default_cfg[] = ""
         "<config>\n"
         "    <global>\n"
@@ -214,6 +215,7 @@ static int get_device(char *name) {
     for (int i = 0; i < strlen(name); i++)
         name[i] = tolower(name[i]);
     for (n = 0; n < 9; n++) {
+
         if (strcmp(name, device_type[n]) == 0) {
             return n;
         }
@@ -299,7 +301,7 @@ static void print_config(hpsdr_config_t config) {
     hpsdr_dbg_printf(0, "----------------------- global --------------------------\n");
     hpsdr_dbg_printf(0, "    config.global.debug = %s\n", config.global.debug ? "true" : "false");
     hpsdr_dbg_printf(0, "  config.global.iqburst = %d\n", config.global.iqburst);
-    hpsdr_dbg_printf(0, "config.global.emulation = %s\n", device_type[config.global.emulation]);
+    hpsdr_dbg_printf(0, "config.global.emulation = %s\n", device_type[emu]);
     hpsdr_dbg_printf(0, "----------------------- filters -------------------------\n");
     hpsdr_dbg_printf(0, " config.filters.enabled = %s\n", config.filters.enabled ? "true" : "false");
     hpsdr_dbg_printf(0, "   config.filters.delay = %d\n", config.filters.delay);
@@ -316,7 +318,6 @@ static void print_config(hpsdr_config_t config) {
     hpsdr_dbg_printf(0, "----------------\n");
 
     hpsdr_dbg_printf(0, "[END CONFIGURATION]\n\n");
-    config.global.emulation = devices_id[config.global.emulation];
 }
 
 #define GET_STR(db, str)        trim(mxml_get(db, str))
@@ -355,11 +356,12 @@ int hpsdr_config_init(char *filename) {
     hpsdr_dbg_printf(0, "reading global\n");
     GET_BOOL(config.global.debug, db, "config.global.debug");
     GET_INT(config.global.iqburst, db, "config.global.iqburst");
-    config.global.emulation = get_device(GET_STR(db, "config.global.emulation"));
-    if (config.global.emulation == -1) {
+    emu = get_device(GET_STR(db, "config.global.emulation"));
+    if (emu == -1) {
         hpsdr_dbg_printf(0, "ERROR: config.global.emulation = %s\n", GET_STR(db, "config.global.emulation"));
         return 1;
     }
+    config.global.emulation = devices_id[emu];
 
     // filters
     hpsdr_dbg_printf(0, "reading filters\n");
