@@ -40,7 +40,7 @@
 #include "hpsdr_main.h"
 #include "hpsdr_debug.h"
 
-int emu;
+static int emu;
 static char default_cfg[] = ""
         "<config>\n"
         "    <global>\n"
@@ -204,11 +204,11 @@ static char *device_type[9] = {
         "c25"          //
         };
 
-static char *filter_type[3] = {
-        "pin",    //
-        "number", //
+static char *filter_type[4] = {
+        "pin",     //
+        "binary",  //
         "pcf8575", //
-        "mcp23016"
+        "mcp23016" //
         };
 
 static int get_device(char *name) {
