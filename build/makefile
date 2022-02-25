@@ -12,6 +12,7 @@ RM := rm -rf
 -include librpitx-C/librpitx/modulation/subdir.mk
 -include librpitx-C/librpitx/core/subdir.mk
 -include hpsdr/subdir.mk
+-include filters/subdir.mk
 -include subdir.mk
 -include objects.mk
 

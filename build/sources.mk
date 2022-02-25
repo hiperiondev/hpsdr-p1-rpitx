@@ -13,6 +13,7 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+filters \
 hpsdr \
 librpitx-C/librpitx/core \
 librpitx-C/librpitx/modulation \

@@ -8,6 +8,7 @@ C_SRCS += \
 ../hpsdr/hpsdr_debug.c \
 ../hpsdr/hpsdr_ep2.c \
 ../hpsdr/hpsdr_ep6.c \
+../hpsdr/hpsdr_filters.c \
 ../hpsdr/hpsdr_functions.c \
 ../hpsdr/hpsdr_iq_tx.c \
 ../hpsdr/hpsdr_main.c \
@@ -19,6 +20,7 @@ OBJS += \
 ./hpsdr/hpsdr_debug.o \
 ./hpsdr/hpsdr_ep2.o \
 ./hpsdr/hpsdr_ep6.o \
+./hpsdr/hpsdr_filters.o \
 ./hpsdr/hpsdr_functions.o \
 ./hpsdr/hpsdr_iq_tx.o \
 ./hpsdr/hpsdr_main.o \
@@ -30,6 +32,7 @@ C_DEPS += \
 ./hpsdr/hpsdr_debug.d \
 ./hpsdr/hpsdr_ep2.d \
 ./hpsdr/hpsdr_ep6.d \
+./hpsdr/hpsdr_filters.d \
 ./hpsdr/hpsdr_functions.d \
 ./hpsdr/hpsdr_iq_tx.d \
 ./hpsdr/hpsdr_main.d \
@@ -41,7 +44,7 @@ C_DEPS += \
 hpsdr/%.o: ../hpsdr/%.c hpsdr/subdir.mk
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC Compiler'
-	gcc -I"../hpsdr/include" -I"../librpitx-C/librpitx" -I"../librpitx-C/librpitx/core/include" -I"../librpitx-C/librpitx/modulation/include" -I"../mxml" -O3 -g3 -Wall -c -fmessage-length=0 -fcommon -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	gcc -I"../hpsdr/include" -I"../librpitx-C/librpitx" -I"../librpitx-C/librpitx/core/include" -I"../librpitx-C/librpitx/modulation/include" -I"../mxml" -I"../filters" -O3 -g3 -Wall -c -fmessage-length=0 -fcommon -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

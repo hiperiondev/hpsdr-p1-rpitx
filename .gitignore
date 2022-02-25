@@ -56,3 +56,4 @@ dkms.conf
 Release/
 tmp/
 /build/
+makebuild.sh
