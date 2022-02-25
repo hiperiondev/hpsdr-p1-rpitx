@@ -205,9 +205,10 @@ static char *device_type[9] = {
         };
 
 static char *filter_type[3] = {
-        "pin",  //
-        "gpio", //
-        "i2c"   //
+        "pin",    //
+        "number", //
+        "pcf8575", //
+        "mcp23016"
         };
 
 static int get_device(char *name) {
@@ -405,7 +406,7 @@ int hpsdr_config_init(char *filename) {
 
     _mxml_free(db);
     free(data);
-    _mxml_free_all();
+    mxml_free_all();
 
     return 0;
 }

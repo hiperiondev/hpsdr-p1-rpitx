@@ -9,9 +9,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+
+#include "mxml_mem.h"
 
 unsigned int totalAlloc = 0;
 void *ptrs[1000];
+//char mxml_tags[1000][256];
+
 int ptr_cnt = 0;
 bool mem_init = false;
 
@@ -30,7 +35,9 @@ void* _mxml_malloc(size_t size) {
 
     p = malloc(size + sizeof(int));
     *(int*) p = size;
-    ptrs[ptr_cnt++] = p;
+    ptrs[ptr_cnt] = p;
+    //strcpy(mxml_tags[ptr_cnt++], _mxml_tag);
+
     //printf("_mxml_malloc(total: %d)\n", totalAlloc);
     return (void*) (((int*) p) + 1);
 }
@@ -43,7 +50,9 @@ void* _mxml_calloc(size_t count, size_t size) {
 
     p = calloc(count, size + sizeof(int));
     *(int*) p = size;
-    ptrs[ptr_cnt++] = p;
+    ptrs[ptr_cnt] = p;
+    //strcpy(mxml_tags[ptr_cnt++], _mxml_tag);
+
     //printf("_mxml_calloc(total: %d)\n", totalAlloc);
     return (void*) (((int*) p) + 1);
 }
@@ -66,10 +75,11 @@ void _mxml_free(void *ptr) {
     //printf("_mxml_free(total: %d/%d)\n", totalAlloc, ptr_cnt);
 }
 
-void _mxml_free_all(void) {
+void mxml_free_all(void) {
     int cnt = 0;
     for (int n = 0; n < 1000; n++)
         if (ptrs[n] != 0) {
+            //printf("_mxml_free_all: %s\n", mxml_tags[n]);
             free(ptrs[n]);
             ++cnt;
         }

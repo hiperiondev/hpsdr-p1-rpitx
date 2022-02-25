@@ -111,6 +111,7 @@ static struct editstate* make_editstates(const struct mxml *m, unsigned int *n_r
     n = 2;
     for (edit = m->edits; edit; edit = edit->next)
         n++;
+    //strcpy(_mxml_tag, "make_editstates");
     states = _mxml_calloc(n, sizeof *states);
     if (!states)
         goto nomem;

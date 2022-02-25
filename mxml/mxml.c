@@ -72,6 +72,7 @@ static char* unencode_xml(const char *content, size_t contentsz) {
     c.pos = content;
     c.end = content + contentsz;
     retsz = unencode_xml_into(&c, NULL);
+    //strcpy(_mxml_tag, "unencode_xml");
     ret = _mxml_malloc(retsz + 1);
     if (ret) {
         unencode_xml_into(&c, ret);
@@ -95,6 +96,7 @@ static void value_free(char *value) {
 }
 
 struct mxml* mxml_new(const char *start, unsigned int size) {
+    //strcpy(_mxml_tag, "mxml_new");
     struct mxml *m = _mxml_malloc(sizeof *m);
 
     if (!m)
@@ -152,6 +154,7 @@ char* mxml_get(struct mxml *m, const char *key) {
  * @retval NULL [ENOMEM] no memory
  */
 static struct edit* edit_new(struct mxml *m, enum edit_op op, const char *ekey, int ekeylen, const char *value) {
+    //strcpy(_mxml_tag, "edit_new");
     struct edit *e = _mxml_calloc(1, sizeof *e);
     if (!e)
         return NULL;
