@@ -53,6 +53,7 @@
 #include "hpsdr_iq_tx.h"
 #include "hpsdr_network.h"
 #include "hpsdr_config.h"
+#include "hpsdr_version.h"
 
 int device_emulation;
 int enable_thread;
@@ -105,6 +106,8 @@ static void terminate(int num) {
 int main(int argc, char *argv[]) {
     int i;
     char filename[256] = "hpsdr_p1_rpitx.conf";
+
+    //hpsdr_dbg_printf(0, "hpsdr_p1_rpitx version: %d.%d.%s\n", HPSDR_VERSION_MAJOR, HPSDR_VERSION_MINOR, HPSDR_VERSION_PATCH);
 
     for (int i = 0; i < 64; i++) {
         struct sigaction sa;
