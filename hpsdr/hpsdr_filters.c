@@ -5,6 +5,7 @@
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
  *    HPSDR simulator (https://github.com/g0orx/pihpsdr)
+ *    small-memory XML config database library (https://github.com/dleonard0/mxml)
  *
  *    please contact their authors for more information.
  *
@@ -25,8 +26,5 @@
  *
  */
 
-
-
-
-
+#include "c_gpio.h"
 
