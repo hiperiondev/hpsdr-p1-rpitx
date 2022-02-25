@@ -10,8 +10,9 @@ Transmitter with Raspberry PI over OpenHPSDR
 
 #### TODO:
 - ~~Put all configures on config file~~ -> [DONE]
-- Add hardware LPF and HPF filters selector
-- ~~- Add configuration for bands~~ -> [DONE]
-- - Add selector for gpio
-- - Add selector for i2c
-- Move librpitx to UIO driver
+- ~~Add configuration for bands~~ -> [DONE]
+- Hardware band selector LPF and HPF filters
+- - Add selector for gpio pin
+- - Add selector for gpio binary
+- - Add selector for pcf8575
+- - Add selector for mcp23016
