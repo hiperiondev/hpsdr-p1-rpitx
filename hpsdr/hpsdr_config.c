@@ -404,7 +404,7 @@ int hpsdr_config_init(char *filename) {
 
     print_config(config);
 
-    _mxml_free(db);
+    free(db);
     free(data);
     mxml_free_all();
 

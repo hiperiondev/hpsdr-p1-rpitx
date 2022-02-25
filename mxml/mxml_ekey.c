@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <errno.h>
-#include <stdio.h>	/* snprintf */
+#include <stdio.h>
 
 #include "mxml_int.h"
 

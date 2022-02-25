@@ -8,7 +8,7 @@
 #include "mxml_int.h"
 #include "mxml_mem.h"
 
-/* #define DEBUG 1 */
+// #define DEBUG 1
 
 /*
  * Flatten the edit list into the XML document. The result is a token
@@ -44,7 +44,11 @@
  * Tokens pass through each edit entry, and it may updte its state. */
 struct editstate {
     enum {
-        EDIT_KIND_XML, EDIT_KIND_DELETE, EDIT_KIND_SET, EDIT_KIND_APPEND, EDIT_KIND_WRITE
+        EDIT_KIND_XML,
+        EDIT_KIND_DELETE,
+        EDIT_KIND_SET,
+        EDIT_KIND_APPEND,
+        EDIT_KIND_WRITE
     } kind;
     const struct edit *edit;
 
@@ -56,7 +60,10 @@ struct editstate {
             const char *value;
             int valuelen;
             enum {
-                APPEND_IDLE, APPEND_SENT_OPEN, APPEND_SENT_VALUE, APPEND_SENT_CLOSE
+                APPEND_IDLE,
+                APPEND_SENT_OPEN,
+                APPEND_SENT_VALUE,
+                APPEND_SENT_CLOSE
             } state;
             struct token *held_token;
             struct token sent_token;
@@ -215,7 +222,7 @@ static int xml_tokenize(struct xmlstate *x) {
             return -1;
         }
 #ifdef DEBUG
-		fprintf(stderr, "[append dot]");
+        fprintf(stderr, "[append dot]");
 #endif
         if (x->keylen)
             x->key[x->keylen++] = '.';
@@ -230,7 +237,7 @@ static int xml_tokenize(struct xmlstate *x) {
         /* Remove .tag from end of key */
         const char *dot = memrchr(x->key, '.', x->keylen);
 #ifdef DEBUG
-		fprintf(stderr, "[strip dot]");
+        fprintf(stderr, "[strip dot]");
 #endif
         if (dot)
             x->keylen = dot - x->key;
@@ -247,7 +254,7 @@ static int xml_tokenize(struct xmlstate *x) {
 }
 
 #ifdef DEBUG
-  /* Colours make debug easier to read */
+/* Colours make debug easier to read */
 # define C_KEY  "\033[33m"
 # define C_STR  "\033[34m"
 # define C_OUT  "\033[32m"
@@ -257,21 +264,21 @@ static int xml_tokenize(struct xmlstate *x) {
 
 #ifdef DEBUG
 /** Prints a string using C escapes, e.g. "\n" */
-static void
-fputesc(FILE *f, const char *s, int len)
-{
-	while (len--) {
-		char ch = *s++;
-		if (ch == '\n') fputs("\\n", f);
-		else if (ch == '\r') fputs("\\r", f);
-		else if (ch < ' ')
-			fprintf(f, "\\o%03o", ch);
-		else {
-			if (ch == '\\' || ch == '\"')
-				fputc('\\', f);
-			fputc(ch, f);
-		}
-	}
+static void fputesc(FILE *f, const char *s, int len) {
+    while (len--) {
+        char ch = *s++;
+        if (ch == '\n')
+            fputs("\\n", f);
+        else if (ch == '\r')
+            fputs("\\r", f);
+        else if (ch < ' ')
+            fprintf(f, "\\o%03o", ch);
+        else {
+            if (ch == '\\' || ch == '\"')
+                fputc('\\', f);
+            fputc(ch, f);
+        }
+    }
 }
 #endif /* DEBUG */
 
@@ -407,7 +414,7 @@ int flatten_edits(const struct mxml *m, int (*fn)(void *context, const struct to
         return -1;
 
 #ifdef DEBUG
-	fprintf(stderr, "\nmxml_write %u states", nstates);
+    fprintf(stderr, "\nmxml_write %u states", nstates);
 #endif
     /* assert(nstates > 0 && states[0].kind == EDIT_KIND_WRITE); */
     states[0].write.fn = fn;
@@ -419,65 +426,62 @@ int flatten_edits(const struct mxml *m, int (*fn)(void *context, const struct to
     while (curstate) {
         int n;
 #ifdef DEBUG
-		static int previd = 0;
-		int id = (curstate - states);
-		fprintf(stderr, "\n%*s" C_DIM "<", id + previd, "");
-		if (token) {
-			switch (token->type) {
-			case TOK_EMPTY: fprintf(stderr, "EMPTY"); break;
-			case TOK_EOF: fprintf(stderr, "EOF"); break;
-			case TOK_OPEN: fprintf(stderr, "OPEN" C_END " " C_KEY "%.*s" C_END,
-				token->keylen, token->key); break;
-			case TOK_VALUE: fprintf(stderr, "VALUE" C_END " " C_KEY "%.*s" C_END,
-				token->keylen, token->key);
-				break;
-			case TOK_CLOSE: fprintf(stderr, "CLOSE" C_END " " C_KEY "%.*s" C_END,
-				token->keylen, token->key); break;
-			default: fprintf(stderr, "???");
-			}
-			if (token->value) {
-				fprintf(stderr, " %s" C_END "\"" C_STR,
-				    token->valuelen == -1 ? "(user) " : "");
-				fputesc(stderr, token->value, token->valuelen == -1
-				    ? strlen(token->value) : token->valuelen);
-				fprintf(stderr, C_END "\"");
-			}
-		}
-		previd = id;
-		fprintf(stderr, C_DIM ">" C_END "\n%*s{", id + previd, "");
-		switch (curstate->kind) {
-		case EDIT_KIND_XML:
-			fprintf(stderr, "XML"); break;
-		case EDIT_KIND_DELETE:
-			fprintf(stderr, "DELETE " C_KEY "%.*s" C_END,
-			    curstate->del.keylen,
-			    curstate->del.key);
-			break;
-		case EDIT_KIND_SET:
-			fprintf(stderr, "SET " C_KEY "%.*s" C_END "=\"" C_STR "%s" C_END "\"",
-			    curstate->set.token.keylen,
-			    curstate->set.token.key,
-			    curstate->set.token.value);
-			break;
-		case EDIT_KIND_APPEND:
-			fprintf(stderr, "APPEND " C_KEY "%.*s" C_END "|" C_KEY "%.*s" C_END "=\"" C_STR "%s" C_END "\" %s",
-			    curstate->append.parentlen,
-			    curstate->append.key,
-			    curstate->append.keylen - curstate->append.parentlen,
-			    curstate->append.key + curstate->append.parentlen,
-			    curstate->edit->value,
-			    curstate->append.state == APPEND_IDLE ? "IDLE" :
-			    curstate->append.state == APPEND_SENT_OPEN ? "SENT_OPEN" :
-			    curstate->append.state == APPEND_SENT_VALUE ? "SENT_VALUE" :
-			    curstate->append.state == APPEND_SENT_CLOSE ? "SENT_CLOSE" :
-			    "?");
-			break;
-		case EDIT_KIND_WRITE:
-			fprintf(stderr, "WRITE"); break;
-		default:
-			fprintf(stderr, "???");
-		}
-		fprintf(stderr, "}");
+        static int previd = 0;
+        int id = (curstate - states);
+        fprintf(stderr, "\n%*s" C_DIM "<", id + previd, "");
+        if (token) {
+            switch (token->type) {
+                case TOK_EMPTY:
+                    fprintf(stderr, "EMPTY");
+                    break;
+                case TOK_EOF:
+                    fprintf(stderr, "EOF");
+                    break;
+                case TOK_OPEN:
+                    fprintf(stderr, "OPEN" C_END " " C_KEY "%.*s" C_END, token->keylen, token->key);
+                    break;
+                case TOK_VALUE:
+                    fprintf(stderr, "VALUE" C_END " " C_KEY "%.*s" C_END, token->keylen, token->key);
+                    break;
+                case TOK_CLOSE:
+                    fprintf(stderr, "CLOSE" C_END " " C_KEY "%.*s" C_END, token->keylen, token->key);
+                    break;
+                default:
+                    fprintf(stderr, "???");
+            }
+            if (token->value) {
+                fprintf(stderr, " %s" C_END "\"" C_STR, token->valuelen == -1 ? "(user) " : "");
+                fputesc(stderr, token->value, token->valuelen == -1 ? strlen(token->value) : token->valuelen);
+                fprintf(stderr, C_END "\"");
+            }
+        }
+        previd = id;
+        fprintf(stderr, C_DIM ">" C_END "\n%*s{", id + previd, "");
+        switch (curstate->kind) {
+            case EDIT_KIND_XML:
+                fprintf(stderr, "XML");
+                break;
+            case EDIT_KIND_DELETE:
+                fprintf(stderr, "DELETE " C_KEY "%.*s" C_END, curstate->del.keylen, curstate->del.key);
+                break;
+            case EDIT_KIND_SET:
+                fprintf(stderr, "SET " C_KEY "%.*s" C_END "=\"" C_STR "%s" C_END "\"", curstate->set.token.keylen, curstate->set.token.key,
+                        curstate->set.token.value);
+                break;
+            case EDIT_KIND_APPEND:
+                fprintf(stderr, "APPEND " C_KEY "%.*s" C_END "|" C_KEY "%.*s" C_END "=\"" C_STR "%s" C_END "\" %s", curstate->append.parentlen,
+                        curstate->append.key, curstate->append.keylen - curstate->append.parentlen, curstate->append.key + curstate->append.parentlen,
+                        curstate->edit->value,
+                        curstate->append.state == APPEND_IDLE ? "IDLE" : curstate->append.state == APPEND_SENT_OPEN ? "SENT_OPEN" :
+                        curstate->append.state == APPEND_SENT_VALUE ? "SENT_VALUE" : curstate->append.state == APPEND_SENT_CLOSE ? "SENT_CLOSE" : "?");
+                break;
+            case EDIT_KIND_WRITE:
+                fprintf(stderr, "WRITE");
+                break;
+            default:
+                fprintf(stderr, "???");
+        }
+        fprintf(stderr, "}");
 #endif
 
         if (curstate == states && token && token->type == TOK_EOF)
@@ -501,7 +505,7 @@ int flatten_edits(const struct mxml *m, int (*fn)(void *context, const struct to
     }
     _mxml_free(states);
 #ifdef DEBUG
-	fprintf(stderr, " EOF: return %d\n", ret);
+    fprintf(stderr, " EOF: return %d\n", ret);
 #endif
     return ret;
 }
